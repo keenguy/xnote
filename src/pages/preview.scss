@@ -1,0 +1,153 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+body {
+  -webkit-app-region: drag
+}
+
+button {
+  -webkit-app-region: no-drag;
+}
+
+#header {
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+
+  i {
+    padding: 4px 4px;
+    text-align: center;
+    vertical-align: middle;
+
+    &:hover {
+      background-color: #cccccc;
+      border-radius: 50%;
+
+    }
+  }
+}
+
+#tab-bar {
+  display: flex;
+  flex-direction: row;
+  vertical-align: center;
+  margin: 0;
+  padding: 8px 12px 0px 80px;
+  background-color: rgba(225, 229, 232, 1);
+  overflow: hidden;
+}
+
+#nav-bar {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid #888888;
+  padding: 7px 12px;
+  overflow-x: hidden;
+}
+
+#tabs {
+  flex: 1 1 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.tab-item-wrapper {
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+  min-width: 0;
+
+  &.active {
+    background-color: #ffffff;
+    border-radius: 10px 10px 0 0;
+
+    &:hover {
+      background-color: #ffffff;
+    }
+  }
+
+  &:hover {
+    background-color: #fcfcfc;
+    border-radius: 10px 10px 0 0;
+  }
+
+  max-width: 300px;
+  list-style: none;
+  flex: 1 1 auto;
+  display: flex;
+
+  .tab-item {
+    min-width: 0px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    border-right: 1px solid #999999;
+    overflow: hidden;
+    &.no-border {
+      border-right: none;
+    }
+
+    text-align: center;
+
+    span {
+      display: inline-block;
+      min-width: 0px;
+      padding: 4px 1px;
+      text-align: center;
+      flex: 1 0 auto;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+
+    i {
+      display: inline-block;
+      margin: 2px 10px;
+      //width: 16px;
+      height: 16px;
+      line-height: 16px;
+      flex: 1 1 auto;
+      margin: 0 6px 0 0;
+      min-width: 0;
+      //padding: 2px 5px;
+      overflow: hidden;
+    }
+
+    &.active {
+      span{
+        flex: 1 1 auto;
+        //min-width: 0;
+      }
+      i {
+        flex: 0 0 auto;
+        //min-width: 8px;
+      }
+    }
+  }
+}
+
+.tab-btn-wrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 80px;
+  flex: 0 1 auto;
+  padding: 4px 10px;
+
+  i {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+}
+
+//#add-tab-button{
+//  flex: 0 0 auto;
+//  width: 20px;
+//  margin: 0 10px;
+//}
