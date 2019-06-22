@@ -5,8 +5,6 @@ import '../../assets/style/preview.css'
 import TabList from './tabs/TabList'
 
 
-
-
 const {ipcRenderer, webContents} = window.require('electron')
 
 class Tabs extends React.Component {
@@ -15,9 +13,9 @@ class Tabs extends React.Component {
         const selected = tabList.getIndexOfSelected();
         const tabs = this.props.tabList.map((tab, idx) => {
             const title = tab.title || "New Tab"
-            const  wrapperClasses = `tab-item-wrapper${tab.selected ? ' active' : ''}`
+            const wrapperClasses = `tab-item-wrapper${tab.selected ? ' active' : ''}`
             let itemClasses = `tab-item${tab.selected ? ' active' : ''}`
-            if(idx === selected || idx === selected - 1){
+            if (idx === selected || idx === selected - 1) {
                 itemClasses += ' no-border'
             }
 
@@ -38,6 +36,24 @@ class Tabs extends React.Component {
     }
 }
 
+class NavBar extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        return (
+            <div id="nav-bar">
+                <div>
+                    <i className={`material-icons${this.props.canGoBack ? '':' disabled'}`} onClick={this.props.goBackOrForward.bind(null,true)}>arrow_back</i>
+                    <i className={`material-icons${this.props.canGoForward ? '':' disabled'}`} onClick={this.props.goBackOrForward.bind(null,false)}>arrow_forward</i>
+                </div>
+
+            </div>
+        );
+    }
+}
+
 class Header extends React.Component {
     constructor(props) {
         super(props)
@@ -47,31 +63,33 @@ class Header extends React.Component {
         this.tabList = new TabList()
 
         this.state = {
-            update: true
+            update: true,
+            canGoBack: true,
+            canGoForward: true
         }
         this.clickTab = this.clickTab.bind(this)
         this.closeTab = this.closeTab.bind(this)
         this.addTab = this.addTab.bind(this)
         this.update = this.update.bind(this)
-        this.goBack = this.goBack.bind(this)
+        this.goBackOrForward = this.goBackOrForward.bind(this)
     }
 
     componentDidMount() {
-        ipcRenderer.on('closeTab', ()=>{
+        ipcRenderer.on('closeTab', () => {
             console.log("closeTab event")
             this.closeTab()
         })
 
-        ipcRenderer.on('newTab', (event, data)=>{
+        ipcRenderer.on('newTab', (event, data) => {
             console.log("received newTab", data)
             this.addTab(data)
         })
         this.update();
     }
 
-    goBack(){
+    goBackOrForward(back) {
         const viewId = this.tabList.getViewIdOfSelected()
-        ipcRenderer.send('goBack', viewId)
+        ipcRenderer.send('goBackOrForward', {viewId: viewId, back: back})
     }
 
     addTab(opt) {
@@ -85,14 +103,15 @@ class Header extends React.Component {
         this.tabList.setSelected(id)
         this.update()
     }
-    clickTab(id){
+
+    clickTab(id) {
         this.tabList.setSelected(id)
         this.update()
     }
 
     closeTab(id) {
         let selected = this.tabList.getIndexOfSelected()
-        if(!id || selected === this.tabList.getIndex(id)){
+        if (!id || selected === this.tabList.getIndex(id)) {
             this.tabList.destroyIndex(selected)
             if (selected >= this.tabList.count()) {
                 selected = this.tabList.count() - 1;
@@ -100,7 +119,7 @@ class Header extends React.Component {
             if (selected >= 0) {
                 this.tabList.setSelected(this.tabList.getAtIndex(selected).id)
             }
-        }else {
+        } else {
             this.tabList.destroy(id)
         }
         this.update()
@@ -122,13 +141,8 @@ class Header extends React.Component {
                         <i id="add-tab-button" className="material-icons" onClick={this.addTab}>add</i>
                     </div>
                 </div>
-                <div id="nav-bar">
-                    <div>
-                        <i className="material-icons" onClick={this.goBack}>arrow_back</i>
-                        <i className="material-icons">arrow_forward</i>
-                    </div>
-
-                </div>
+                <NavBar canGoBack={this.state.canGoBack} canGoForward={this.state.canGoForward}
+                goBackOrForward={this.goBackOrForward}/>
             </>
         );
     }

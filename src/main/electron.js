@@ -115,8 +115,12 @@ function setView(id){
     }
 }
 
-ipcMain.on("goBack",(event, viewId)=>{
+ipcMain.on("goBackOrForward",(event, data)=>{
     if(windows[1]){
-        vm.getView(viewId).webContents.goBack();
+        if(data.back) {
+            vm.getView(data.viewId).webContents.goBack();
+        }else{
+            vm.getView(data.viewId).webContents.goForward();
+        }
     }
 })

@@ -28,6 +28,12 @@ button {
   border-radius: 50%;
   cursor: default;
 }
+#header i.disabled {
+  color: #aaaaaa;
+}
+#header i.disabled:hover {
+  background-color: inherit;
+}
 
 #tab-bar {
   display: flex;

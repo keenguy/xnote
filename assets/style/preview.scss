@@ -28,6 +28,12 @@ button {
       border-radius: 50%;
       cursor: default;
     }
+    &.disabled{
+      color: #aaaaaa;
+      &:hover{
+        background-color: inherit;
+      }
+    }
   }
 }
 

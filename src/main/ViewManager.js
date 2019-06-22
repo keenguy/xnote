@@ -4,6 +4,7 @@ class ViewManager{
     constructor(){
         this.viewMap = {}     // id: view , to store BrowserViews
         this.nextId = 1;
+        this.viewStateMap = {}
     }
 
     addView(win, filePath, events){
@@ -14,6 +15,9 @@ class ViewManager{
         const id = this.nextId;
         this.nextId++;
         this.viewMap[id] = view;
+        this.viewStateMap[id] = {
+            url: filePath
+        }
 
         p.then(()=>{
             events.forEach((event)=>{
@@ -25,7 +29,9 @@ class ViewManager{
 
         return id;
     }
-
+    getViewState(id){
+        return this.viewStateMap[id];
+    }
     getView(id){
         return this.viewMap[id]
     }
