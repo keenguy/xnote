@@ -1,38 +1,103 @@
-const {app, BrowserWindow, BrowserView, ipcMain, Menu, dialog} = require('electron')
-// const isDev = require('electron-is-dev')
+const {app, BrowserWindow, BrowserView, ipcMain, Menu} = require('electron')
+
 // const md = require('./lib/markdown.js');
 const getMenu = require('./menu.js')
 // const url = require('url')
 const path = require('path')
 // const fs = require('fs')
 const isDev = require("electron-is-dev");
-const vm = require('./ViewManager.js')
+
+
 // const Store = require('electron-store');
 // const main = require('file-loader?name=[name].[ext]!../public/main.html');
 
 
-let windows = [null, null]
-let urls = ["pages/index.html", "pages/preview.html"]
+let editorWindow = null
+let browserWindow = null
+
+
+const editorPage = "pages/editor.html"
+const browserPage = "pages/browser.html"
+
+let appIsReady = false
+
+const userDataPath = app.getPath('userData')
+
+// common window options
+const winOpts = {
+    width: 1400,
+    height: 880,
+    show: true,
+    movable: true,
+    webPreferences: {
+        nodeIntegration: true,
+        additionalArguments: ['--user-data-path=' + userDataPath]
+    }
+}
+function createEditorWindow(cb){
+    editorWindow = new BrowserWindow(winOpts)
+    if (isDev) {
+        editorWindow.loadURL("http://localhost:3000/" + editorPage)
+    } else {
+        editorWindow.loadFile(editorPage)
+    }
+    editorWindow.on('closed',function(){
+        editorWindow = null
+    })
+    if(cb){
+        cb()
+    }
+}
+
+function createBrowserWindow(cb){
+    const opts = Object.assign({titleBarStyle: 'hiddenInset'}, winOpts)
+    browserWindow = new BrowserWindow(opts)
+    if (isDev) {
+        browserWindow.loadURL("http://localhost:3000/" + browserPage)
+    } else {
+        browserWindow.loadFile(browserPage)
+    }
+    browserWindow.on('closed', function () {
+        browserWindow = null
+    })
+}
+
+function openEditorWindow(){
+    if(!editorWindow){
+        createEditorWindow()
+    }else{
+        editorWindow.show()
+    }
+}
+
+function openBrowserWindow(){
+    if(!browserWindow){
+        createBrowserWindow()
+    }else{
+        browserWindow.show()
+    }
+}
 
 app.on('ready', () => {
-    openWindow(0);
+    appIsReady = true
+    createEditorWindow()
     function menuAction(cmd, opt) {
-        if (cmd === 'toPreview' && windows[1]) {
-            windows[1].show();
-        } else if (cmd === 'toIndex' && windows[0]) {
-            windows[0].show();
+        if (cmd === 'toBrowser' && browserWindow) {
+            browserWindow.show();
+        } else if (cmd === 'toEditor' && editorWindow) {
+            editorWindow.show();
         } else if (cmd === 'closeTab'){
-            if(windows[1] && windows[1].isFocused()) {
+            if(browserWindow && browserWindow.isFocused()) {
                 // console.log("close Tab in preview window")
-                windows[1].webContents.send('closeTab')
+                browserWindow.webContents.send('closeTab')
             }
         }
-        // else if (cmd === 'callEdit' && windows[0]) {
-        //     windows[0].webContents.send(opt.msg, opt.data);
-        // } else if (cmd === 'callPreview' && windows[1]) {
-        //     windows[1].webContents.send(opt.msg, opt.data);
-        // } else if (cmd === 'findInPreview' && windows[1] && windows[1].isFocused){
-        //     windows[1].webContents.send('find')
+        // else if (cmd === 'callEdit' && editorWindow) {
+        //     editorWindow.webContents.send(opt.msg, opt.data);
+        // } else if (cmd === 'callPreview' && browserWindow) {
+        //     browserWindow.webContents.send(opt.msg, opt.data);
+        // } else if (cmd === 'findInPreview' && browserWindow && browserWindow.isFocused){
+        //     browserWindow.webContents.send('find')
         // }
     }
 
@@ -51,72 +116,41 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    openWindow(0);
+    if(!editorWindow && appIsReady){
+        createEditorWindow()
+    }
 })
 
 
-function openWindow(idx) {
-    const opts = {
-        width: 1400,
-        height: 880,
-        show: true,
-        movable: true,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    }
-    if (idx === 1){
-        opts.titleBarStyle = 'hiddenInset'
-    }
-    if (!windows[idx]) {
-        windows[idx] = new BrowserWindow(opts)
-        if (isDev) {
-            windows[idx].loadURL("http://localhost:3000/" + urls[idx])
-        } else {
-            const p = path.join(__dirname, "../", urls[idx])
-            windows[idx].webContents.loadURL(`file://${p}`)
-        }
-        windows[idx].on('closed', () => {
-            windows[idx] = null;
-        })
-    } else {
-        windows[idx].show();
-    }
-}
+
 
 
 
 
 ipcMain.on('preview', (event, data) => {
     console.log("preview: ", data.path)
-    openWindow(1);
+    openBrowserWindow();
     const p = path.join(__dirname, "../../test", data.path)
     const events = [{
         name: "newTab",
         data: {title: "preview"}
     }]
-    const viewId = vm.addView(windows[1], p, events);
-    setView(viewId)
+    const viewId = vm.createView()
+    vm.loadFileInView(viewId,{filePath:p, cb: ()=>{
+        browserWindow.webContents.send('newTab', {viewId: viewId})
+        }})
+    vm.setView(viewId)
+
 })
 
 ipcMain.on("setView", (event,data)=>{
-    setView(data.viewId)
+    vm.setView(data.viewId)
 })
 
-function setView(id){
-    console.log("set Browserview: ", id)
-    if(windows[1]) {
-        const view = vm.getView(id);
-        if(!view){
-            windows[1].setBrowserView(null);
-        }else {
-            windows[1].setBrowserView(view);
-        }
-    }
-}
+
 
 ipcMain.on("goBackOrForward",(event, data)=>{
-    if(windows[1]){
+    if(browserWindow){
         if(data.back) {
             vm.getView(data.viewId).webContents.goBack();
         }else{
@@ -124,3 +158,75 @@ ipcMain.on("goBackOrForward",(event, data)=>{
         }
     }
 })
+
+
+/* ViewManager */
+let vm = (function (){
+    let viewMap = {} // id: view
+    let viewStateMap = {} // id: view state
+    let id = 0;
+    const bounds = {x:0, y: 87, height: 713, width:1400}
+
+    function createView(){
+        let view = new BrowserView()
+        id++;
+        view.setBounds(bounds)
+        viewMap[id] = view
+        viewStateMap[id] = {loadedInitialURL: false}
+        return id
+    }
+
+    function loadFileInView(id, args){
+        const p = viewMap[id].webContents.loadFile(args.filePath)
+        if(args.cb){
+            p.then(()=>{args.cb()})
+        }
+    }
+
+    function destroyView (id) {
+        if (viewMap[id] === viewWindow.getBrowserView()) {
+            viewWindow.setBrowserView(null)
+        }
+        viewMap[id].destroy()
+        delete viewMap[id]
+        delete viewStateMap[id]
+    }
+
+    function destroyAllViews () {
+        for (let id in viewMap) {
+            destroyView(id)
+        }
+    }
+
+    function setView (id) {
+        browserWindow.setBrowserView(viewMap[id])
+        viewMap[id].setBounds(bounds)
+    }
+
+    function focusView (id) {
+        // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
+        if (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading()) {
+            viewMap[id].webContents.focus()
+        } else {
+            browserWindow.webContents.focus()
+        }
+    }
+
+    function hideCurrentView () {
+        browserWindow.setBrowserView(null)
+        browserWindow.webContents.focus()
+    }
+
+    function getView (id) {
+        return viewMap[id]
+    }
+
+    return {
+        createView,
+        loadFileInView,
+        getView,
+        setView
+    }
+})();
+
+global.getView = vm.getView

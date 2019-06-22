@@ -33,3 +33,5 @@ window.addEventListener('load', function () {
         }
     }, true)
 })
+
+require('./webviews.js')

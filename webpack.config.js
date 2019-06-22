@@ -24,9 +24,9 @@ const electronConfig = {
     }
 };
 
-const indexRendererConfig = {
+const editorRendererConfig = {
     target: 'electron-renderer',
-    entry: {index: './src/renderer/index.js'},
+    entry: {editor: './src/renderer/editor.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
@@ -51,15 +51,15 @@ const indexRendererConfig = {
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/index.html",
-            filename: "./pages/index.html"
+            template: "./src/pages/editor.html",
+            filename: "./pages/editor.html"
         })
     ]
 };
 
-const previewRendererConfig = {
+const browserRendererConfig = {
     target: 'electron-renderer',
-    entry: {preview: './src/renderer/preview.js'},
+    entry: {browser: './src/renderer/browser.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
@@ -101,8 +101,8 @@ const previewRendererConfig = {
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/preview.html",
-            filename: "./pages/preview.html"
+            template: "./src/pages/browser.html",
+            filename: "./pages/browser.html"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -114,4 +114,4 @@ const previewRendererConfig = {
 };
 
 
-module.exports = [electronConfig, indexRendererConfig, previewRendererConfig];
+module.exports = [electronConfig, editorRendererConfig, browserRendererConfig];

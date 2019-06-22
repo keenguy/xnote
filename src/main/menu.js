@@ -108,17 +108,17 @@ function getMenu(menuAction) {
                     }
                 },
                 {
-                    label: 'switch to Preview',
+                    label: 'Switch to Browser',
                     accelerator: 'Cmd+Option+Right',
                     click: () => {
-                        menuAction('toPreview')
+                        menuAction('toBrowser')
                     }
                 },
                 {
-                    label: 'switch to Editor',
+                    label: 'Switch to Editor',
                     accelerator: 'Cmd+Option+Left',
                     click: () => {
-                        menuAction('toIndex');
+                        menuAction('toEditor');
                     }
                 },
                 {
