@@ -4,6 +4,7 @@ import "material-design-icons/iconfont/material-icons.css"
 import '../../assets/style/preview.css'
 import TabList from './tabs/TabList'
 
+import  './js/initPreview.js'
 
 const {ipcRenderer, webContents} = window.require('electron')
 
@@ -84,6 +85,8 @@ class Header extends React.Component {
             console.log("received newTab", data)
             this.addTab(data)
         })
+
+        // init();
         this.update();
     }
 
@@ -134,7 +137,7 @@ class Header extends React.Component {
     render() {
         return (
             <>
-                <div id="tab-bar">
+                <div id="tab-bar" className="windowDragHandle">
                     <Tabs tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}/>
                     <div id="tab-btns">
                         <i className="material-icons">menu</i>
