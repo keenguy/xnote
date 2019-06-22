@@ -1,16 +1,18 @@
+const {ipcRenderer} = window.require('electron')
+
 class TabList {
-    constructor (tabs) {
+    constructor(tabs) {
         this.tabs = tabs || []
         this.events = []
         this.pendingCallbacks = []
         this.pendingCallbackTimeout = null
     }
 
-    on (name, fn) {
+    on(name, fn) {
         this.events.push({name, fn})
     }
 
-    emit (name, ...data) {
+    emit(name, ...data) {
         this.events.forEach(listener => {
             if (listener.name === name) {
                 this.pendingCallbacks.push([listener.fn, data])
@@ -27,13 +29,13 @@ class TabList {
         })
     }
 
-    add (tab = {} , index) {
+    add(tab = {}, index) {
         var tabId = String(tab.id || Math.round(Math.random() * 100000000000000000)) // you can pass an id that will be used, or a random one will be generated.
-
         var newTab = {
             url: tab.url || '',
             title: tab.title || '',
             id: tabId,
+            viewId: tab.viewId || -1,
             // lastActivity: tab.lastActivity || Date.now(),
             // secure: tab.secure,
             // private: tab.private || false,
@@ -42,7 +44,6 @@ class TabList {
             // foregroundColor: tab.foregroundColor,
             selected: tab.selected || false
         }
-
         if (index) {
             this.tabs.splice(index, 0, newTab)
         } else {
@@ -53,7 +54,8 @@ class TabList {
 
         return tabId
     }
-    update (id, data) {
+
+    update(id, data) {
         if (!this.has(id)) {
             throw new ReferenceError('Attempted to update a tab that does not exist.')
         }
@@ -67,22 +69,29 @@ class TabList {
             this.emit('tab-updated', id, key)
         }
     }
-    destroy (id) {
-        const index = this.getIndex(id)
-        if (index < 0) return false
 
+    destroyIndex(index) {
+        if (index < 0) return false
+        const id = this.tabs[index].id;
         // tasks.getTaskContainingTab(id).tabHistory.push(this.tabs[index])
         this.tabs.splice(index, 1)
 
         this.emit('tab-destroyed', id)
+    }
+
+    destroyId(id) {
+        const index = this.getIndex(id)
+        this.destroyIndex(index)
 
         return index
     }
-    destroyAll () {
+
+    destroyAll() {
         // this = [] doesn't work, so set the length of the array to 0 to remove all of the itemss
         this.tabs.length = 0
     }
-    get (id) {
+
+    get(id) {
         if (!id) { // no id provided, return an array of all tabs
             // it is important to deep-copy the tab objects when returning them. Otherwise, the original tab objects get modified when the returned tabs are modified (such as when processing a url).
             var tabsToReturn = []
@@ -98,11 +107,12 @@ class TabList {
         }
         return undefined
     }
-    has (id) {
+
+    has(id) {
         return this.getIndex(id) > -1
     }
 
-    getIndex (id) {
+    getIndex(id) {
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].id === id) {
                 return i
@@ -110,31 +120,44 @@ class TabList {
         }
         return -1
     }
-    getIndexOfSelected(){
-        for(let i = 0; i < this.tabs.length; i++){
-            if (this.tabs[i].selected){
+
+    getIndexOfSelected() {
+        for (let i = 0; i < this.tabs.length; i++) {
+            if (this.tabs[i].selected) {
                 return i;
             }
         }
         return -1;
     }
-    getIdOfSelected () {
+    getViewIdOfSelected(){
+        let index = this.getIndexOfSelected();
+        if(index >= 0){
+            return this.tabs[index].viewId
+        }else{
+            return -1;
+        }
+    }
+    getIdOfSelected() {
         const id = this.getIndexOfSelected();
         if (id < 0) {
             return null
-        }else{
+        } else {
             return id;
         }
     }
-    getAtIndex (index) {
+
+    getAtIndex(index) {
         return this.tabs[index] || undefined
     }
-    setSelected (id) {
+
+    setSelected(id) {
         if (!this.has(id)) {
             throw new ReferenceError('Attempted to select a tab that does not exist.')
         }
+        let index = -1;
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].id === id) {
+                index = i;
                 this.tabs[i].selected = true
                 this.tabs[i].lastActivity = Date.now()
             } else if (this.tabs[i].selected) {
@@ -142,12 +165,16 @@ class TabList {
                 this.tabs[i].lastActivity = Date.now()
             }
         }
-        this.emit('tab-selected', id)
+        console.log("setSelected: ", index)
+        const viewId = this.tabs[index].viewId;
+        ipcRenderer.send('setView', {viewId: viewId})
     }
-    count () {
+
+    count() {
         return this.tabs.length
     }
-    isEmpty () {
+
+    isEmpty() {
         if (!this.tabs || this.tabs.length === 0) {
             return true
         }
@@ -158,16 +185,20 @@ class TabList {
 
         return false
     }
-    forEach (fun) {
+
+    forEach(fun) {
         return this.tabs.forEach(fun)
     }
-    map(fun){
+
+    map(fun) {
         return this.tabs.map(fun)
     }
-    splice (...args) {
+
+    splice(...args) {
         return this.tabs.splice.apply(this.tabs, args)
     }
-    getStringifyableState () {
+
+    getStringifyableState() {
         return this.tabs
     }
 

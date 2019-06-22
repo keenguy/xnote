@@ -1,12 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import '../pages/preview.css'
+import "material-design-icons/iconfont/material-icons.css"
+import '../../assets/style/preview.css'
 import TabList from './tabs/TabList'
+
+
 
 
 const {ipcRenderer, webContents} = window.require('electron')
 
-class TabBar extends React.Component {
+class Tabs extends React.Component {
     render() {
         const tabList = this.props.tabList;
         const selected = tabList.getIndexOfSelected();
@@ -22,7 +25,7 @@ class TabBar extends React.Component {
                 <div className={wrapperClasses} key={tab.id}>
                     <div className={itemClasses}>
                         <span onClick={this.props.clickTab.bind(null, tab.id)}>{title}</span>
-                        <i className="fa fa-times" onClick={this.props.closeTab.bind(null, tab.id)}/>
+                        <i className="material-icons md-14" onClick={this.props.closeTab.bind(null, tab.id)}>close</i>
                     </div>
                 </div>
             );
@@ -49,19 +52,34 @@ class Header extends React.Component {
         this.clickTab = this.clickTab.bind(this)
         this.closeTab = this.closeTab.bind(this)
         this.addTab = this.addTab.bind(this)
+        this.update = this.update.bind(this)
+        this.goBack = this.goBack.bind(this)
     }
 
     componentDidMount() {
-        for (let i = 0; i < 5; i++) {
-            this.addTab()
-        }
-        this.update()
+        ipcRenderer.on('closeTab', ()=>{
+            console.log("closeTab event")
+            this.closeTab()
+        })
+
+        ipcRenderer.on('newTab', (event, data)=>{
+            console.log("received newTab", data)
+            this.addTab(data)
+        })
+        this.update();
     }
 
-    addTab() {
+    goBack(){
+        const viewId = this.tabList.getViewIdOfSelected()
+        ipcRenderer.send('goBack', viewId)
+    }
+
+    addTab(opt) {
+        opt = opt || {}
         const id = this.tabList.add({
-            url: "",
-            title: "New Tab",
+            viewId: opt.viewId || "",
+            url: opt.url || "",
+            title: opt.title || "New Tab",
             selected: false
         }, this.tabList.count())
         this.tabList.setSelected(id)
@@ -73,15 +91,17 @@ class Header extends React.Component {
     }
 
     closeTab(id) {
-        const selected = this.tabList.getIndexOfSelected()
-        let index = this.tabList.destroy(id)
-        if (index === selected) {
-            if (index >= this.tabList.count()) {
-                index = this.tabList.count() - 1;
+        let selected = this.tabList.getIndexOfSelected()
+        if(!id || selected === this.tabList.getIndex(id)){
+            this.tabList.destroyIndex(selected)
+            if (selected >= this.tabList.count()) {
+                selected = this.tabList.count() - 1;
             }
-            if (index >= 0) {
-                this.tabList.setSelected(this.tabList.getAtIndex(index).id)
+            if (selected >= 0) {
+                this.tabList.setSelected(this.tabList.getAtIndex(selected).id)
             }
+        }else {
+            this.tabList.destroy(id)
         }
         this.update()
     }
@@ -92,27 +112,20 @@ class Header extends React.Component {
         })
     }
 
-    addView(title) {
-        title = title || "New Tab";
-        const id = this.nextID++;
-        this.viewsMap[id] = title;
-        return id;
-    }
-
     render() {
         return (
             <>
                 <div id="tab-bar">
-                    <TabBar tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}/>
-                    <div className="tab-btn-wrapper">
-                        < i className="fa fa-bars navbar-action-button invisible tab-btn"> </i>
-                        <i id="add-tab-button" className="fa fa-plus tab-btn" onClick={this.addTab}></i>
+                    <Tabs tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}/>
+                    <div id="tab-btns">
+                        <i className="material-icons">menu</i>
+                        <i id="add-tab-button" className="material-icons" onClick={this.addTab}>add</i>
                     </div>
                 </div>
                 <div id="nav-bar">
                     <div>
-                        <i className="fa fa-arrow-left"></i>
-                        <i className="fa fa-arrow-right"></i>
+                        <i className="material-icons" onClick={this.goBack}>arrow_back</i>
+                        <i className="material-icons">arrow_forward</i>
                     </div>
 
                 </div>

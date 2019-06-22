@@ -14,8 +14,8 @@ const electronConfig = {
         filename: 'main/[name].js'
     },
     mode: 'development',
-    devServer:{
-        contentBase: path.join(ROOT_PATH,'src'),
+    devServer: {
+        contentBase: path.join(ROOT_PATH, 'src'),
         port: 3000
     },
     node: {
@@ -90,7 +90,9 @@ const previewRendererConfig = {
                         },
                     },
                     'css-loader']
-            }]
+            },
+            { test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]" }
+        ]
     },
     mode: 'development',
     node: {

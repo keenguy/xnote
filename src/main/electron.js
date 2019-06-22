@@ -6,13 +6,13 @@ const getMenu = require('./menu.js')
 const path = require('path')
 // const fs = require('fs')
 const isDev = require("electron-is-dev");
+const vm = require('./ViewManager.js')
 // const Store = require('electron-store');
 // const main = require('file-loader?name=[name].[ext]!../public/main.html');
 
 
 let windows = [null, null]
 let urls = ["pages/index.html", "pages/preview.html"]
-let viewMap = {}     // id: view , to store BrowserViews
 
 app.on('ready', () => {
     openWindow(0);
@@ -21,6 +21,11 @@ app.on('ready', () => {
             windows[1].show();
         } else if (cmd === 'toIndex' && windows[0]) {
             windows[0].show();
+        } else if (cmd === 'closeTab'){
+            if(windows[1] && windows[1].isFocused()) {
+                // console.log("close Tab in preview window")
+                windows[1].webContents.send('closeTab')
+            }
         }
         // else if (cmd === 'callEdit' && windows[0]) {
         //     windows[0].webContents.send(opt.msg, opt.data);
@@ -80,26 +85,38 @@ function openWindow(idx) {
 }
 
 
-id = 0;
 
-function createBrowserView() {
-    let view;
-    view = new BrowserView()
-    windows[1].setBrowserView(view)
-    view.setBounds({x: 0, y: 83, width: 600, height: 600})
-    viewMap[id++] = view;
-    return view;
-}
 
 ipcMain.on('preview', (event, data) => {
     console.log("preview: ", data.path)
     openWindow(1);
-
-    // windows[1].webContents.openDevTools()
-    const view = createBrowserView()
     const p = path.join(__dirname, "../../test", data.path)
-    view.webContents.loadFile(p);
-    // view.webContents.openDevTools()
-    // windows[1].webContents.loadURL(`file://${p}`)
+    const events = [{
+        name: "newTab",
+        data: {title: "preview"}
+    }]
+    const viewId = vm.addView(windows[1], p, events);
+    setView(viewId)
+})
 
+ipcMain.on("setView", (event,data)=>{
+    setView(data.viewId)
+})
+
+function setView(id){
+    console.log("set Browserview: ", id)
+    if(windows[1]) {
+        const view = vm.getView(id);
+        if(!view){
+            windows[1].setBrowserView(null);
+        }else {
+            windows[1].setBrowserView(view);
+        }
+    }
+}
+
+ipcMain.on("goBack",(event, viewId)=>{
+    if(windows[1]){
+        vm.getView(viewId).webContents.goBack();
+    }
 })

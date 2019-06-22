@@ -101,6 +101,13 @@ function getMenu(menuAction) {
                     {role: 'close'}
                 ]),
                 {
+                    label: 'close tab',
+                    accelerator: 'Cmd+Option+W',
+                    click: ()=>{
+                        menuAction('closeTab')
+                    }
+                },
+                {
                     label: 'switch to Preview',
                     accelerator: 'Cmd+Option+Right',
                     click: () => {
