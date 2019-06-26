@@ -20,9 +20,9 @@ const electronConfig = {
     }
 };
 
-const mainRendererConfig = {
+const editorRendererConfig = {
     target: 'electron-renderer',
-    entry: {index: './src/renderer/index.js'},
+    entry: {index: './src/renderer/editor.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
@@ -47,15 +47,15 @@ const mainRendererConfig = {
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/main.html",
-            filename: "./pages/main.html"
+            template: "./src/pages/editor.html",
+            filename: "./pages/editor.html"
         })
     ]
 };
 
-const previewRendererConfig = {
+const viewerRendererConfig = {
     target: 'electron-renderer',
-    entry: {preview: './src/renderer/preview.js'},
+    entry: {viewer: './src/renderer/viewer.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
@@ -86,7 +86,9 @@ const previewRendererConfig = {
                         },
                     },
                     'css-loader']
-            }]
+            },
+            {test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]"}
+        ]
     },
     mode: 'production',
     node: {
@@ -95,17 +97,17 @@ const previewRendererConfig = {
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/preview.html",
-            filename: "./pages/preview.html"
+            template: "./src/pages/viewer.html",
+            filename: "./pages/viewer.html"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
             // both options are optional
-            filename: '[name].css',
+            filename: 'assets/[name].css',
             chunkFilename: '[id].css',
         })
     ]
 };
 
 
-module.exports = [electronConfig, mainRendererConfig, previewRendererConfig];
+module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];

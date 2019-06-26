@@ -57,9 +57,9 @@ const editorRendererConfig = {
     ]
 };
 
-const browserRendererConfig = {
+const viewerRendererConfig = {
     target: 'electron-renderer',
-    entry: {browser: './src/renderer/browser.js'},
+    entry: {viewer: './src/renderer/viewer.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
@@ -91,7 +91,7 @@ const browserRendererConfig = {
                     },
                     'css-loader']
             },
-            { test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]" }
+            {test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]"}
         ]
     },
     mode: 'development',
@@ -101,8 +101,8 @@ const browserRendererConfig = {
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/browser.html",
-            filename: "./pages/browser.html"
+            template: "./src/pages/viewer.html",
+            filename: "./pages/viewer.html"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -114,4 +114,4 @@ const browserRendererConfig = {
 };
 
 
-module.exports = [electronConfig, editorRendererConfig, browserRendererConfig];
+module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];

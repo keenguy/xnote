@@ -7,11 +7,27 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development electron .",
+    "dev": "export ELECTRON_IS_DEV=true && electron .",
     "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
-    "start": "cross-env NODE_ENV=production electron ./build/main/electron.js",
+    "start": "export ELECTRON_IS_DEV=false && electron ./build/main/electron.js",
     "test": "electron test/main.js"
+  },
+  "build": {
+    "appId": "com.guyong.xnote",
+    "productName": "Xnote",
+    "copyright": "Copyright © 2019 ${author}",
+    "mac": {
+      "target": [
+        "dir"
+      ]
+    },
+    "files": [
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",

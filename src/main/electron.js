@@ -1,4 +1,4 @@
-const {app, BrowserWindow, BrowserView, ipcMain, Menu} = require('electron')
+const {app, BrowserWindow, viewView, ipcMain, Menu} = require('electron')
 
 // const md = require('./lib/markdown.js');
 const getMenu = require('./menu.js')
@@ -13,12 +13,12 @@ const isDev = require("electron-is-dev");
 
 
 let editorWindow = null
-let browserWindow = null
+let viewerWindow = null
 let vm = require('./ViewManager.js')
 // let toLoad = null
 
 const editorPage = "pages/editor.html"
-const browserPage = "pages/browser.html"
+const viewPage = "pages/viewer.html"
 
 let appIsReady = false
 
@@ -39,9 +39,11 @@ const winOpts = {
 function createEditorWindow(cb) {
     editorWindow = new BrowserWindow(winOpts)
     if (isDev) {
+        console.log("dev, loadFile")
         editorWindow.loadURL("http://localhost:3000/" + editorPage)
     } else {
-        editorWindow.loadFile(editorPage)
+        console.log("not dev, loadFile")
+        editorWindow.loadFile(path.join(__dirname,"../",editorPage))
     }
     editorWindow.on('closed', function () {
         editorWindow = null
@@ -51,18 +53,18 @@ function createEditorWindow(cb) {
     }
 }
 
-function createBrowserWindow(cb) {
+function createviewerWindow(cb) {
     const opts = Object.assign({titleBarStyle: 'hiddenInset'}, winOpts)
-    browserWindow = new BrowserWindow(opts)
-    vm.setWindow(browserWindow)
+    viewerWindow = new BrowserWindow(opts)
+    vm.setWindow(viewerWindow)
     if (isDev) {
-        browserWindow.loadURL("http://localhost:3000/" + browserPage)
+        viewerWindow.loadURL("http://localhost:3000/" + viewPage)
     } else {
-        browserWindow.loadFile(browserPage)
+        viewerWindow.loadFile(path.join(__dirname, "../", viewPage))
     }
 
-    browserWindow.on('closed', function () {
-        browserWindow = null
+    viewerWindow.on('closed', function () {
+        viewerWindow = null
         vm.clearWindow()
     })
     if (cb) {
@@ -78,15 +80,15 @@ function openEditorWindow() {
     }
 }
 
-function openBrowserWindow(cb) {
-    if (!browserWindow) {
-        createBrowserWindow(() => {
+function openviewerWindow(cb) {
+    if (!viewerWindow) {
+        createviewerWindow(() => {
             if(cb) {
-                browserWindow.webContents.on('did-finish-load', cb)
+                viewerWindow.webContents.on('did-finish-load', cb)
             }
         })
     } else {
-        browserWindow.show()
+        viewerWindow.show()
         if(cb) {
             cb()
         }
@@ -98,22 +100,22 @@ app.on('ready', () => {
     createEditorWindow()
 
     function menuAction(cmd, opt) {
-        if (cmd === 'toBrowser' && browserWindow) {
-            browserWindow.show();
+        if (cmd === 'toview' && viewerWindow) {
+            viewerWindow.show();
         } else if (cmd === 'toEditor' && editorWindow) {
             editorWindow.show();
         } else if (cmd === 'closeTab') {
-            if (browserWindow && browserWindow.isFocused()) {
+            if (viewerWindow && viewerWindow.isFocused()) {
                 // console.log("close Tab in preview window")
-                browserWindow.webContents.send('closeTab')
+                viewerWindow.webContents.send('closeTab')
             }
         }
         // else if (cmd === 'callEdit' && editorWindow) {
         //     editorWindow.webContents.send(opt.msg, opt.data);
-        // } else if (cmd === 'callPreview' && browserWindow) {
-        //     browserWindow.webContents.send(opt.msg, opt.data);
-        // } else if (cmd === 'findInPreview' && browserWindow && browserWindow.isFocused){
-        //     browserWindow.webContents.send('find')
+        // } else if (cmd === 'callPreview' && viewerWindow) {
+        //     viewerWindow.webContents.send(opt.msg, opt.data);
+        // } else if (cmd === 'findInPreview' && viewerWindow && viewerWindow.isFocused){
+        //     viewerWindow.webContents.send('find')
         // }
     }
 
@@ -155,7 +157,7 @@ ipcMain.on('preview', (event, data) => {
     console.log("preview: ", data.title, "at ", data.url)
     data.url = path.join("file://", __dirname, "../../test", data.url)
 
-    openBrowserWindow(()=>{
+    openviewerWindow(()=>{
         vm.loadURLInNewView(data)
     })
 
@@ -179,13 +181,13 @@ ipcMain.on("newTab", (event, id)=>{
 //     console.log("loadURL: ", data.url)
 //     vm.loadURLInView(viewId, {url:data.url}).then(()=>{
 //         const tabId = null;
-//         browserWindow.webContents.send('assignViewToTab', {tabId: tabId,viewId: viewId})
+//         viewerWindow.webContents.send('assignViewToTab', {tabId: tabId,viewId: viewId})
 //     })
 // })
 
 
 ipcMain.on("goBackOrForward", (event, data) => {
-    if (browserWindow) {
+    if (viewerWindow) {
         if (data.back) {
             vm.getView(data.viewId).webContents.goBack();
         } else {
@@ -195,16 +197,16 @@ ipcMain.on("goBackOrForward", (event, data) => {
 })
 
 
-//resize browserviews if browserwindow resize
-ipcMain.on('browserWindowResize',(event, data)=>{
+//resize views if viewerWindow resize
+ipcMain.on('viewerWindowResize',(event, data)=>{
     bounds = {x:0, y:90, width: data.width, height: data.height-90}
     vm.setBounds(bounds)
-    if(browserWindow.getBrowserView()) {
-        browserWindow.getBrowserView().setBounds(bounds)
+    if(viewerWindow.getviewView()) {
+        viewerWindow.getviewView().setBounds(bounds)
     }
 })
 
 ipcMain.on('closeWindow', (event)=>{
-    const win = BrowserWindow.fromWebContents(event.sender)
+    const win = viewerWindow.fromWebContents(event.sender)
     win.close()
 })
