@@ -75,9 +75,9 @@ class EditView extends React.Component {
         return (
             <div id="edit" className="tabview" style={{display: this.props.show ? 'flex' : 'none'}}>
                 <div className="tool-bar bar">
-                    <span><i className={`fa fa-save fa-fw ${this.props.file.needSave ? 'active' : null}`}
-                             onClick={this.props.saveFile}></i></span>
-                    <span><i className="fa fa-eye fa-fw" onClick={this.preview}></i></span>
+                    <span><i className={`material-icons ${this.props.file.needSave ? 'active' : null}`}
+                             onClick={this.props.saveFile}>save</i></span>
+                    <span><i className="material-icons" onClick={this.preview}>play_arrow</i></span>
                 </div>
                 <div id="edit-main">
                     <div id="edit-left" style={{display: this.props.sidebar ? 'flex' : 'none'}}>

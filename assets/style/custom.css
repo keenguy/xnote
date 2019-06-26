@@ -1,0 +1,344 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  font-size: 18px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+#textit {
+  display: none;
+}
+
+.react-codemirror2 {
+  height: 100%;
+}
+
+.CodeMirror {
+  font-family: "Source Code Pro", Consolas, monaco, monospace;
+  letter-spacing: 0.025em;
+  line-height: 1.25;
+  height: 100%;
+  /*overflow-y: hidden !important;*/
+}
+
+.CodeMirror-linenumber {
+  text-align: left;
+}
+
+.CodeMirror-empty {
+  color: grey;
+}
+
+.CodeMirror-scroll {
+  overflow: scroll !important;
+  margin-bottom: -30px;
+  margin-right: -30px;
+  padding-bottom: 30px;
+  height: 100%;
+  outline: none;
+  position: relative;
+}
+
+/*.CodeMirror-gutters {*/
+/*    position: absolute;*/
+/*    left: 0;*/
+/*    top: 0;*/
+/*    min-height: 100%;*/
+/*    z-index: 3;*/
+/*}*/
+.wrapper {
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px 20px;
+}
+
+.flex {
+  display: flex;
+}
+
+.hide {
+  display: none;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.editview, #edit {
+  overflow-y: hidden;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.bar {
+  margin: 0;
+  padding: 0;
+  background-color: #efefef;
+  border-bottom: 1px solid #cacaca;
+  display: flex;
+  flex-direction: row;
+}
+.bar span {
+  margin: 4px 20px;
+}
+.bar .btn {
+  cursor: default;
+}
+
+.fa-save.active {
+  color: #2c2c2c;
+}
+.fa-save.active:hover {
+  color: #3f51b5;
+}
+
+.fa-save {
+  color: #c0c0c0;
+}
+
+.header-bar {
+  font-size: larger;
+  flex: 0 0 auto;
+}
+.header-bar i {
+  margin: 2px 8px;
+}
+.header-bar i.disable {
+  color: #fafafa;
+}
+
+#main {
+  border-bottom: 1px solid #dadada;
+  flex: 1 1 auto;
+  margin: 0px;
+  align-items: stretch;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.footer-bar {
+  display: flex;
+  flex-direction: row;
+  flex: 0 0 auto;
+  margin: 0px 0px;
+  padding: 9px 20px;
+}
+.footer-bar .footer-left {
+  flex: 1 0 auto;
+}
+.footer-bar .info {
+  flex: 4 0 auto;
+}
+.footer-bar .footer-right {
+  flex: 1 0 auto;
+}
+
+.tabview {
+  min-width: 0;
+  height: 100%;
+  align-items: stretch;
+  overflow-y: hidden;
+}
+
+/*home view*/
+#home {
+  flex-direction: row;
+  flex: 1 0;
+}
+#home i {
+  margin: 0px 10px;
+}
+#home ul {
+  list-style: none;
+  margin: 10px 5px;
+  padding: 0;
+  overflow-y: scroll;
+  min-height: 0;
+}
+#home ul li {
+  padding: 5px 10px;
+  cursor: default;
+}
+#home ul li .date {
+  margin-left: 20px;
+  font-size: small;
+}
+#home ul li.file {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+}
+#home ul li.file:hover {
+  cursor: pointer;
+  color: #3f51b5;
+  background-color: #f5f5f5;
+}
+#home .file-list {
+  overflow-y: scroll;
+}
+
+#home-left {
+  font-family: monospace;
+}
+#home-left ul {
+  padding: 0px 10px;
+}
+#home-left ul li:hover {
+  background-color: #f5f5f5;
+}
+
+#home-main {
+  flex: 1 1;
+}
+
+#recent {
+  overflow-y: auto;
+  flex-direction: column;
+}
+
+#home-workspace {
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+#home-workspace input[type=text] {
+  width: 100%;
+  padding: 4px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 17px;
+}
+#home-workspace input[type=text]:focus {
+  outline: none;
+}
+
+/*edit view */
+.left-bar {
+  flex-direction: column;
+  width: 30px;
+  flex: 0 0 auto;
+  border-right: 1px solid #dadada;
+  border-bottom: none;
+  margin: 0;
+  padding: 0;
+}
+.left-bar i {
+  margin: 8px auto;
+  padding: 0 2px;
+  display: block;
+}
+
+.tool-bar {
+  font-size: larger;
+  background-color: #fafafa;
+}
+
+#edit-left {
+  overflow-y: scroll;
+  width: 20%;
+  font-weight: normal;
+  display: flex;
+}
+#edit-left ul {
+  padding-left: 5px;
+}
+#edit-left ul li {
+  list-style: none;
+}
+#edit-left .toc {
+  flex-direction: column;
+  margin: 2px 2px;
+  flex: 1 0 auto;
+  font-size: 14px;
+  min-width: 0;
+  max-width: calc(100% - 38px);
+}
+#edit-left .toc li {
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+#edit-main {
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+  flex: 1 1;
+}
+
+.editor {
+  flex: 1 auto;
+  width: 82%;
+}
+
+/* spliting */
+#separator {
+  cursor: col-resize;
+  border-right: 1px solid #dadada;
+  width: 4px;
+  height: 100%;
+  /* prevent browser's built-in drag from interfering */
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* info */
+.success {
+  color: green;
+}
+
+.warning {
+  color: yellow;
+}
+
+.error {
+  color: red;
+}
+
+/* markdown extension */
+.r {
+  color: red;
+}
+
+.b {
+  color: blue;
+}
+
+.g {
+  color: green;
+}
+
+.by {
+  background-color: yellow;
+}
+
+.bg {
+  background-color: green;
+}
+
+em.r, em.b, em.g, em.by, em.bg {
+  font-style: normal;
+}
+
+.theorem > p:first-child::before {
+  content: "Theorem: ";
+  font-weight: bold;
+}
+
+/*# sourceMappingURL=custom.css.map */

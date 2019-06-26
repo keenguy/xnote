@@ -10,8 +10,19 @@ const Store = require('electron-store');
 
 
 
-// const Store = require('electron-store');
-// const main = require('file-loader?name=[name].[ext]!../public/main.html');
+const schema = {
+    basePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes'},
+    curFilePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes/javascript/promise.md'},
+    recentFiles: {type: 'array', default: []}
+}
+const store = new Store({schema});
+let sharedState = {
+    needSave: false
+}
+global.sharedObject = {
+    state: sharedState,
+    store: store
+}
 
 
 let editorWindow = null
@@ -153,6 +164,46 @@ ipcMain.on('preview', (event, data) => {
 
 })
 
+//asynchronous, sync markdown and html windows.
+ipcMain.on('sync', (event, data) => {
+    // console.log("sync: ", data.line)
+    let idx = data.toWin;
+    if (idx < 0 || idx >= windows.length || !windows[idx]) return;
+    const window = idx == 0 ? editorWindow : viewerWindow
+    windows.webContents.send('sync', data.line);
+    windows.show();
+})
+
+
+// ipcMain.on('preview', (event, data) => {
+//     // if (!data.save && preview_win) return;
+//
+//     const p = data.file.path;
+//     const pos = p.lastIndexOf(".");
+//     const title = p.substr(0, pos < 0 ? p.length : pos) + ".html";
+//
+//     showPreview(data, title);
+// })
+
+//synchronous
+ipcMain.on('readFile', (event,data)=>{
+    try{
+        let content = fs.readFileSync(data.path, {encoding: 'utf8'})
+        event.returnValue = {content: content}
+    }catch{
+        event.returnValue = {err: true}
+    }
+})
+
+ipcMain.on('writeFile', (event, data) => {
+    try{
+        fs.writeFileSync(data.path, data.content, {encoding: 'utf8'})
+        event.returnValue = {err: false}
+    }catch{
+        event.returnValue = {err: true}
+    }
+})
+
 // viewerWindow.webContents events
 ipcMain.on("newTab", (event, id)=>{
     vm.loadToLoad(id)
@@ -172,6 +223,7 @@ ipcMain.on("goBackOrForward", (event, data) => {
         }
     }
 })
+
 
 
 // dom events
