@@ -127,8 +127,10 @@ class TabList {
                 this.tabs[i].lastActivity = Date.now()
             }
         }
-        // console.log("TabLIst setView: ", {id:id})
-        ipcRenderer.send('setView', {id:id})
+        console.log("TabList setView: ", {id:id})
+        ipcRenderer.send('setView', {id:id, focus: true})
+        // ipcRenderer.send('setView', {id:id, focus: true})
+
         // this.parentTaskList.emit('tab-selected', id)
     }
     count () {

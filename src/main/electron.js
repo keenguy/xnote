@@ -138,33 +138,41 @@ app.on('activate', () => {
 })
 
 
+/* views events */
+// const viewEvents = [
+// {event:'new-window',
+//     options:{preventDefault: true},
+//     id: 0
+// },
+//
+// view.webContents.on('will-navigate', (event,url)=>{
+//     event.preventDefault()
+//     console.log("will-navigate: ", url)
+// })
+//     ]
 ipcMain.on('preview', (event, data) => {
     console.log("preview: ", data.title, "at ", data.url)
-    const p = path.join(__dirname, "../../test", data.url)
+    data.url = path.join("file://", __dirname, "../../test", data.url)
 
     openBrowserWindow()
 
-    let viewId = vm.createView()
-
-    vm.loadFileInView(viewId,p,()=>{
-        browserWindow.webContents.send('newTabWithView', {viewId: viewId, url: data.url, title: data.title})
-    })
+    vm.loadURLInNewView(data)
 })
 
-ipcMain.on('loadURL', (event,data)=>{
-    const viewId = vm.createView()
-    console.log("loadURL")
-    if(!data.url.startsWith("http://")){
-        const p = path.join(__dirname, "../../test", data.url)
-        data.url = `file://${p}`
-    }
-
-    console.log("loadURL: ", data.url)
-    vm.loadURLInView(viewId, {url:data.url}).then(()=>{
-        const tabId = null;
-        browserWindow.webContents.send('assignViewToTab', {tabId: tabId,viewId: viewId})
-    })
-})
+// ipcMain.on('loadURL', (event,data)=>{
+//     const viewId = vm.createView()
+//     console.log("loadURL")
+//     if(!data.url.startsWith("http://")){
+//         const p = path.join(__dirname, "../../test", data.url)
+//         data.url = `file://${p}`
+//     }
+//
+//     console.log("loadURL: ", data.url)
+//     vm.loadURLInView(viewId, {url:data.url}).then(()=>{
+//         const tabId = null;
+//         browserWindow.webContents.send('assignViewToTab', {tabId: tabId,viewId: viewId})
+//     })
+// })
 
 
 ipcMain.on("goBackOrForward", (event, data) => {

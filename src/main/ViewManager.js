@@ -4,7 +4,7 @@ let viewMap = {} // id: view
 let viewStateMap = {} // id: view state
 let mainWindow = null
 
-let bounds = {x:0, y: 90, height: 713, width:1400};
+let bounds = {x: 0, y: 90, height: 713, width: 1400};
 let id = 0    //
 
 // initialize viewMap[0] to be an empty view
@@ -12,20 +12,34 @@ function init() {
     viewMap[0] = new BrowserView()
 }
 
-function createView (events) {
-    let view = new BrowserView({webPreferences: {
+function createView(events) {
+    let view = new BrowserView({
+        webPreferences: {
             nodeIntegration: true
-        }})
-
+        }
+    })
+    // events.forEach(function (ev) {
+    //     view.webContents.on(ev.event, function (e) {
+    //         if (ev.options && ev.options.preventDefault) {
+    //             e.preventDefault()
+    //         }
+    //         mainWindow.webContents.send('view-event', {
+    //             viewId: id,
+    //             eventId: ev.id,
+    //             args: Array.prototype.slice.call(arguments).slice(1)
+    //         })
+    //     })
+    // })
     view.webContents.on('new-window', (event, url, frameName, disposition, options) => {
         event.preventDefault()
         console.log("new-window: ", url)
+        this.loadURLInNewView({url: url})
     })
+    // view.webContents.on('will-navigate', (event,url)=>{
+    //     event.preventDefault()
+    //     console.log("will-navigate: ", url)
+    // })
 
-    view.webContents.on('will-navigate', (event,url)=>{
-        event.preventDefault()
-        console.log("will-navigate: ", url)
-    })
 
     id++
 
@@ -37,15 +51,16 @@ function createView (events) {
     return id
 }
 
-function setWindow(win){
+
+function setWindow(win) {
     mainWindow = win
 }
 
-function clearWindow(){
+function clearWindow() {
     mainWindow = null
 }
 
-function destroyView (id) {
+function destroyView(id) {
     // destroy an associated partition
 
     // var partition = viewMap[id].webContents.getWebPreferences().partition
@@ -61,56 +76,65 @@ function destroyView (id) {
     delete viewStateMap[id]
 }
 
-function destroyAllViews () {
+function destroyAllViews() {
     for (let id in viewMap) {
         destroyView(id)
     }
 }
 
-function setView (id) {
+function setView(id) {
     console.log("set view: ", id)
-    if(mainWindow) {
+    if (mainWindow) {
         mainWindow.setBrowserView(viewMap[id])
-        if(viewMap[id]) {
-
-            viewMap[id].webContents.openDevTools()
+        if (viewMap[id]) {
+            // viewMap[id].webContents.openDevTools()
             viewMap[id].setBounds(bounds)
         }
+        mainWindow.setBrowserView(viewMap[id])
     }
+
 }
 
-function setBounds (bounds) {
-    bounds = bounds;
+function setBounds(bs) {
+    bounds = bs;
 }
 
-function focusView (id) {
+function focusView(id) {
     // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
     if (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading()) {
         viewMap[id].webContents.focus()
-    } else if(mainWindow){
+    } else if (mainWindow) {
         mainWindow.webContents.focus()
     }
 }
 
-function hideCurrentView () {
-    if(mainWindow) {
+function hideCurrentView() {
+    if (mainWindow) {
         mainWindow.setBrowserView(null)
         mainWindow.webContents.focus()
     }
 }
 
-function getView (id) {
+function getView(id) {
     return viewMap[id]
 }
 
-function loadFileInView(id, filePath, cb){
-    console.log("loadfile ", filePath, " in view ", id)
-    viewMap[id].webContents.loadFile(filePath).then(()=>{
-        if(cb){
-            cb()
-        }
-    })
+function loadURLInView(id, args) {
+    console.log("loadURL ", args.url, " in view ", id)
 
+    // wait until the first URL is loaded to set the background color so that new tabs can use a custom background
+    if (!viewStateMap[id].loadedInitialURL) {
+        viewMap[id].setBackgroundColor('#fff')
+    }
+    viewStateMap[id].loadedInitialURL = true
+    return viewMap[id].webContents.loadURL(args.url)
+}
+
+function loadURLInNewView(args) {
+    const id = this.createView()
+    return this.loadURLInView(id, args).then(() => {
+        mainWindow.webContents.send('newTabWithView', {viewId: id, url: args.url, title: args.title})
+    })
 }
 
 ipcMain.on('createView', function (e, args) {
@@ -145,14 +169,6 @@ ipcMain.on('hideCurrentView', function (e) {
     hideCurrentView()
 })
 
-function loadURLInView(id, args){
-    // wait until the first URL is loaded to set the background color so that new tabs can use a custom background
-    if (!viewStateMap[id].loadedInitialURL) {
-        viewMap[id].setBackgroundColor('#fff')
-    }
-    viewStateMap[id].loadedInitialURL = true
-    return viewMap[id].webContents.loadURL(args.url)
-}
 
 ipcMain.on('callViewMethod', function (e, data) {
     var error, result
@@ -168,7 +184,7 @@ ipcMain.on('callViewMethod', function (e, data) {
 })
 
 ipcMain.on('getCapture', function (e, data) {
-    if(!mainWindow) return;
+    if (!mainWindow) return;
     viewMap[data.id].webContents.capturePage(function (img) {
         var size = img.getSize()
         if (size.width === 0 && size.height === 0) {
@@ -182,7 +198,7 @@ const vm = {
     createView,
     getView,
     setView,
-    loadFileInView,
+    loadURLInNewView,
     loadURLInView,
     setWindow,
     clearWindow,

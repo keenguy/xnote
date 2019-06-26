@@ -120,6 +120,7 @@ class Header extends React.Component {
             }, this.tabList.count())
         }
         this.tabList.setSelected(tabId)
+        // this.tabList.setSelected(tabId)
         this.update()
     }
 
