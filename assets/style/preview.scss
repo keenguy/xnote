@@ -12,6 +12,7 @@ button {
   -webkit-app-region: no-drag;
 }
 
+
 #header {
   width: 100%;
   overflow: hidden;
@@ -35,6 +36,14 @@ button {
       }
     }
   }
+
+  :not(input):not(textarea),
+  :not(input):not(textarea)::after,
+  :not(input):not(textarea)::before {
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+  }
 }
 
 #tab-bar {
@@ -55,6 +64,22 @@ button {
   border-bottom: 1px solid #888888;
   padding: 5px 12px;
   overflow-x: hidden;
+
+  .nav-btns {
+    width: 150px;
+    flex: 0 0 auto;
+  }
+
+  #place {
+    padding: 4px 10px;
+    text-align: left;
+    vertical-align: middle;
+    flex: 1 0 auto;
+    //border: 1px solid #888888;
+    border-radius: 16px;
+    background-color: rgba(238, 240, 241, 1);
+    max-width: 900px;
+  }
 }
 
 
@@ -92,7 +117,7 @@ button {
   }
 
   &:hover {
-    background-color: #fcfcfc;
+    background-color: rgba(239, 241, 242, 1);;
     border-radius: 10px 10px 0 0;
   }
 

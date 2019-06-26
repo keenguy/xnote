@@ -4,7 +4,7 @@ import "material-design-icons/iconfont/material-icons.css"
 import '../../assets/style/preview.css'
 import TabList from './js/TabList'
 
-import  './js/initPreview.js'
+import './js/initPreview.js'
 
 const {ipcRenderer, webContents} = window.require('electron')
 
@@ -12,7 +12,7 @@ class Tabs extends React.Component {
     render() {
         const tabList = this.props.tabList;
         const selected = tabList.getIndexOfSelected();
-        const tabs = this.props.tabList.map((tab, idx) => {
+        const tabs = tabList.map((tab, idx) => {
             const title = tab.title || "New Tab"
             const wrapperClasses = `tab-item-wrapper${tab.selected ? ' active' : ''}`
             let itemClasses = `tab-item${tab.selected ? ' active' : ''}`
@@ -43,11 +43,19 @@ class NavBar extends React.Component {
     }
 
     render() {
+        const url = this.props.tabList.getURLOfSelected()
+
         return (
             <div id="nav-bar">
-                <div>
-                    <i className={`material-icons${this.props.canGoBack ? '':' disabled'}`} onClick={this.props.goBackOrForward.bind(null,true)}>arrow_back</i>
-                    <i className={`material-icons${this.props.canGoForward ? '':' disabled'}`} onClick={this.props.goBackOrForward.bind(null,false)}>arrow_forward</i>
+                <div className="nav-btns">
+                    <i className={`material-icons${this.props.canGoBack ? '' : ' disabled'}`}
+                       onClick={this.props.goBackOrForward.bind(null, true)}>arrow_back</i>
+                    <i className={`material-icons${this.props.canGoForward ? '' : ' disabled'}`}
+                       onClick={this.props.goBackOrForward.bind(null, false)}>arrow_forward</i>
+                </div>
+
+                <div id='place'>
+                    <span>{url}</span>
                 </div>
 
             </div>
@@ -70,40 +78,48 @@ class Header extends React.Component {
         }
         this.clickTab = this.clickTab.bind(this)
         this.closeTab = this.closeTab.bind(this)
-        this.addTab = this.addTab.bind(this)
+        this.openTab = this.openTab.bind(this)
         this.update = this.update.bind(this)
         this.goBackOrForward = this.goBackOrForward.bind(this)
     }
 
     componentDidMount() {
         ipcRenderer.on('closeTab', () => {
-            console.log("closeTab event")
             this.closeTab()
         })
 
-        ipcRenderer.on('newTab', (event, data) => {
-            console.log("received newTab", data)
-            this.addTab(data)
+        ipcRenderer.on('newTabWithView', (event, data) => {
+            console.log("newTabWithView: ", data.viewId)
+            this.openTab(null, data)
         })
 
+        window.addEventListener('resize', () => {
+            ipcRenderer.send("browserWindowResize", {height: window.innerHeight, width: window.innerWidth})
+        });
         // init();
         this.update();
     }
 
     goBackOrForward(back) {
-        const viewId = this.tabList.getViewIdOfSelected()
-        ipcRenderer.send('goBackOrForward', {viewId: viewId, back: back})
+        const viewId = this.tabList.getSelected()
+        if (viewId) {
+            ipcRenderer.send('goBackOrForward', {viewId: viewId, back: back})
+        }
     }
 
-    addTab(opt) {
+    openTab(tabId, opt) {
+        console.log("open Tab: ", tabId)
         opt = opt || {}
-        const id = this.tabList.add({
-            viewId: opt.viewId || "",
-            url: opt.url || "",
-            title: opt.title || "New Tab",
-            selected: false
-        }, this.tabList.count())
-        this.tabList.setSelected(id)
+        if (tabId) {
+            this.tabList.update(tabId, opt)
+        } else {
+            tabId = this.tabList.add({
+                id: opt.viewId || null,
+                url: opt.url || "",
+                title: opt.title || "New Tab",
+            }, this.tabList.count())
+        }
+        this.tabList.setSelected(tabId)
         this.update()
     }
 
@@ -113,17 +129,22 @@ class Header extends React.Component {
     }
 
     closeTab(id) {
-        let selected = this.tabList.getIndexOfSelected()
-        if (!id || selected === this.tabList.getIndex(id)) {
-            this.tabList.destroyIndex(selected)
-            if (selected >= this.tabList.count()) {
-                selected = this.tabList.count() - 1;
+        const selectedId = this.tabList.getSelected()
+        let selectedIndex = this.tabList.getIndex(selectedId)
+
+        if (!id || selectedIndex === this.tabList.getIndex(id)) {
+            this.tabList.destroy(selectedId)
+            if (selectedIndex >= this.tabList.count()) {
+                selectedIndex = this.tabList.count() - 1;
             }
-            if (selected >= 0) {
-                this.tabList.setSelected(this.tabList.getAtIndex(selected).id)
+            if (selectedIndex >= 0) {
+                this.tabList.setSelected(this.tabList.getAtIndex(selectedIndex).id)
             }
         } else {
             this.tabList.destroy(id)
+        }
+        if (this.tabList.count() <= 0) {
+            ipcRenderer.send('closeWindow')
         }
         this.update()
     }
@@ -141,11 +162,13 @@ class Header extends React.Component {
                     <Tabs tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}/>
                     <div id="tab-btns">
                         <i className="material-icons">menu</i>
-                        <i id="add-tab-button" className="material-icons" onClick={this.addTab}>add</i>
+                        <i id="add-tab-button" className="material-icons"
+                           onClick={this.openTab.bind(null, null)}>add</i>
                     </div>
                 </div>
                 <NavBar canGoBack={this.state.canGoBack} canGoForward={this.state.canGoForward}
-                goBackOrForward={this.goBackOrForward}/>
+                        goBackOrForward={this.goBackOrForward}
+                        tabList={this.tabList}/>
             </>
         );
     }

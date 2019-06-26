@@ -1,41 +1,48 @@
-var viewMap = {} // id: view
-var viewStateMap = {} // id: view state
-
 const {BrowserView, ipcMain} = require('electron')
 
+let viewMap = {} // id: view
+let viewStateMap = {} // id: view state
+let mainWindow = null
 
-let id = 0;
-function createView () {
-    let view = new BrowserView()
-    // events = events ||  []
-    // events.forEach(function (ev) {
-    //     view.webContents.on(ev.event, function (e) {
-    //         if (ev.options && ev.options.preventDefault) {
-    //             e.preventDefault()
-    //         }
-    //         viewWindow.webContents.send('view-event', {
-    //             viewId: id,
-    //             eventId: ev.id,
-    //             args: Array.prototype.slice.call(arguments).slice(1)
-    //         })
-    //     })
-    // })
-    id++;
-    // main process send message to view? why not send to viewWindow directly?
-    view.webContents.on('ipc-message', function (e, channel, data) {
-        viewWindow.webContents.send('view-ipc', {
-            id: id,
-            name: channel,
-            data: data
-        })
+let bounds = {x:0, y: 90, height: 713, width:1400};
+let id = 0    //
+
+// initialize viewMap[0] to be an empty view
+function init() {
+    viewMap[0] = new BrowserView()
+}
+
+function createView (events) {
+    let view = new BrowserView({webPreferences: {
+            nodeIntegration: true
+        }})
+
+    view.webContents.on('new-window', (event, url, frameName, disposition, options) => {
+        event.preventDefault()
+        console.log("new-window: ", url)
     })
 
-    view.setBounds({x:0, y: 87, height: 713, width:1400})
+    view.webContents.on('will-navigate', (event,url)=>{
+        event.preventDefault()
+        console.log("will-navigate: ", url)
+    })
+
+    id++
+
+    view.setBounds(bounds)
 
     viewMap[id] = view
     viewStateMap[id] = {loadedInitialURL: false}
 
     return id
+}
+
+function setWindow(win){
+    mainWindow = win
+}
+
+function clearWindow(){
+    mainWindow = null
 }
 
 function destroyView (id) {
@@ -45,8 +52,9 @@ function destroyView (id) {
     // if (partition) {
     //     session.fromPartition(partition).destroy()
     // }
-    if (viewMap[id] === viewWindow.getBrowserView()) {
-        viewWindow.setBrowserView(null)
+
+    if (mainWindow && viewMap[id] === mainWindow.getBrowserView()) {
+        mainWindow.setBrowserView(null)
     }
     viewMap[id].destroy()
     delete viewMap[id]
@@ -60,29 +68,49 @@ function destroyAllViews () {
 }
 
 function setView (id) {
-    viewWindow.setBrowserView(viewMap[id])
+    console.log("set view: ", id)
+    if(mainWindow) {
+        mainWindow.setBrowserView(viewMap[id])
+        if(viewMap[id]) {
+
+            viewMap[id].webContents.openDevTools()
+            viewMap[id].setBounds(bounds)
+        }
+    }
 }
 
-function setBounds (id, bounds) {
-    viewMap[id].setBounds(bounds)
+function setBounds (bounds) {
+    bounds = bounds;
 }
 
 function focusView (id) {
     // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
     if (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading()) {
         viewMap[id].webContents.focus()
-    } else {
-        viewWindow.webContents.focus()
+    } else if(mainWindow){
+        mainWindow.webContents.focus()
     }
 }
 
 function hideCurrentView () {
-    viewWindow.setBrowserView(null)
-    viewWindow.webContents.focus()
+    if(mainWindow) {
+        mainWindow.setBrowserView(null)
+        mainWindow.webContents.focus()
+    }
 }
 
 function getView (id) {
     return viewMap[id]
+}
+
+function loadFileInView(id, filePath, cb){
+    console.log("loadfile ", filePath, " in view ", id)
+    viewMap[id].webContents.loadFile(filePath).then(()=>{
+        if(cb){
+            cb()
+        }
+    })
+
 }
 
 ipcMain.on('createView', function (e, args) {
@@ -97,9 +125,9 @@ ipcMain.on('destroyAllViews', function () {
     destroyAllViews()
 })
 
+
 ipcMain.on('setView', function (e, args) {
     setView(args.id)
-    setBounds(args.id, args.bounds)
     if (args.focus) {
         focusView(args.id)
     }
@@ -117,43 +145,48 @@ ipcMain.on('hideCurrentView', function (e) {
     hideCurrentView()
 })
 
-ipcMain.on('loadURLInView', function (e, args) {
+function loadURLInView(id, args){
     // wait until the first URL is loaded to set the background color so that new tabs can use a custom background
-    if (!viewStateMap[args.id].loadedInitialURL) {
-        viewMap[args.id].setBackgroundColor('#fff')
+    if (!viewStateMap[id].loadedInitialURL) {
+        viewMap[id].setBackgroundColor('#fff')
     }
-    viewMap[args.id].webContents.loadURL(args.url)
-    viewStateMap[args.id].loadedInitialURL = true
+    viewStateMap[id].loadedInitialURL = true
+    return viewMap[id].webContents.loadURL(args.url)
+}
+
+ipcMain.on('callViewMethod', function (e, data) {
+    var error, result
+    try {
+        var webContents = viewMap[data.id].webContents
+        result = webContents[data.method].apply(webContents, data.args)
+    } catch (e) {
+        error = e
+    }
+    if (data.callId && mainWindow) {
+        mainWindow.webContents.send('async-call-result', {callId: data.callId, error, result})
+    }
 })
 
-// ipcMain.on('callViewMethod', function (e, data) {
-//     var error, result
-//     try {
-//         var webContents = viewMap[data.id].webContents
-//         result = webContents[data.method].apply(webContents, data.args)
-//     } catch (e) {
-//         error = e
-//     }
-//     if (data.callId) {
-//         viewWindow.webContents.send('async-call-result', {callId: data.callId, error, result})
-//     }
-// })
-
-// ipcMain.on('getCapture', function (e, data) {
-//     viewMap[data.id].webContents.capturePage(function (img) {
-//         var size = img.getSize()
-//         if (size.width === 0 && size.height === 0) {
-//             return
-//         }
-//         img = img.resize({width: data.width, height: data.height})
-//         viewWindow.webContents.send('captureData', {id: data.id, url: img.toDataURL()})
-//     })
-// })
-
+ipcMain.on('getCapture', function (e, data) {
+    if(!mainWindow) return;
+    viewMap[data.id].webContents.capturePage(function (img) {
+        var size = img.getSize()
+        if (size.width === 0 && size.height === 0) {
+            return
+        }
+        img = img.resize({width: data.width, height: data.height})
+        mainWindow.webContents.send('captureData', {id: data.id, url: img.toDataURL()})
+    })
+})
 const vm = {
     createView,
     getView,
-    setView
+    setView,
+    loadFileInView,
+    loadURLInView,
+    setWindow,
+    clearWindow,
+    setBounds,
+    init
 }
-
-module.exports = vm;
+module.exports = vm

@@ -34,6 +34,13 @@ button {
 #header i.disabled:hover {
   background-color: inherit;
 }
+#header :not(input):not(textarea),
+#header :not(input):not(textarea)::after,
+#header :not(input):not(textarea)::before {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
 
 #tab-bar {
   display: flex;
@@ -53,6 +60,19 @@ button {
   border-bottom: 1px solid #888888;
   padding: 5px 12px;
   overflow-x: hidden;
+}
+#nav-bar .nav-btns {
+  width: 150px;
+  flex: 0 0 auto;
+}
+#nav-bar #place {
+  padding: 4px 10px;
+  text-align: left;
+  vertical-align: middle;
+  flex: 1 0 auto;
+  border-radius: 16px;
+  background-color: #eef0f1;
+  max-width: 900px;
 }
 
 #tabs {
@@ -91,7 +111,7 @@ button {
   background-color: #ffffff;
 }
 .tab-item-wrapper:hover {
-  background-color: #fcfcfc;
+  background-color: #eff1f2;
   border-radius: 10px 10px 0 0;
 }
 .tab-item-wrapper .tab-item {

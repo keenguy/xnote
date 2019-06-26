@@ -95,14 +95,12 @@ function getMenu(menuAction) {
                 ...(isMac ? [
                     {type: 'separator'},
                     {role: 'front'},
-                    {type: 'separator'},
-                    {role: 'close'}
+                    {type: 'separator'}
                 ] : [
-                    {role: 'close'}
                 ]),
                 {
                     label: 'close tab',
-                    accelerator: 'Cmd+Option+W',
+                    accelerator: 'Cmd+W',
                     click: ()=>{
                         menuAction('closeTab')
                     }

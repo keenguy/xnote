@@ -7,9 +7,11 @@ const {ipcRenderer} = window.require('electron');
 class Header extends React.Component{
     componentDidMount() {
         document.addEventListener('click', function (event) {
-            if (event.target.tagName === 'A' && event.target.href.startsWith('http')) {
+            // console.log(event.target.href)
+            let url = event.target.getAttribute('href')
+            if (event.target.tagName === 'A') {
                 event.preventDefault()
-                ipcRenderer.send('preview', {path: event.target.getAttribute('href')})
+                ipcRenderer.send('preview', {url: event.target.getAttribute('href'), title: event.target.text})
             }
         })
     }

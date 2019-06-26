@@ -14,7 +14,7 @@ const isDev = require("electron-is-dev");
 
 let editorWindow = null
 let browserWindow = null
-
+let vm = require('./ViewManager.js')
 
 const editorPage = "pages/editor.html"
 const browserPage = "pages/browser.html"
@@ -34,60 +34,75 @@ const winOpts = {
         additionalArguments: ['--user-data-path=' + userDataPath]
     }
 }
-function createEditorWindow(cb){
+
+function createEditorWindow(cb) {
     editorWindow = new BrowserWindow(winOpts)
     if (isDev) {
         editorWindow.loadURL("http://localhost:3000/" + editorPage)
     } else {
         editorWindow.loadFile(editorPage)
     }
-    editorWindow.on('closed',function(){
+    editorWindow.on('closed', function () {
         editorWindow = null
     })
-    if(cb){
+    if (cb) {
         cb()
     }
 }
 
-function createBrowserWindow(cb){
+function createBrowserWindow(cb) {
     const opts = Object.assign({titleBarStyle: 'hiddenInset'}, winOpts)
     browserWindow = new BrowserWindow(opts)
+    vm.setWindow(browserWindow)
     if (isDev) {
         browserWindow.loadURL("http://localhost:3000/" + browserPage)
     } else {
         browserWindow.loadFile(browserPage)
     }
+
     browserWindow.on('closed', function () {
         browserWindow = null
+        vm.clearWindow()
     })
+    if (cb) {
+        cb()
+    }
 }
 
-function openEditorWindow(){
-    if(!editorWindow){
+function openEditorWindow() {
+    if (!editorWindow) {
         createEditorWindow()
-    }else{
+    } else {
         editorWindow.show()
     }
 }
 
-function openBrowserWindow(){
-    if(!browserWindow){
-        createBrowserWindow()
-    }else{
+function openBrowserWindow(cb) {
+    if (!browserWindow) {
+        createBrowserWindow(() => {
+            if(cb) {
+                browserWindow.webContents.on('did-finish-load', cb)
+            }
+        })
+    } else {
         browserWindow.show()
+        if(cb) {
+            cb()
+        }
     }
 }
 
 app.on('ready', () => {
     appIsReady = true
     createEditorWindow()
+
     function menuAction(cmd, opt) {
         if (cmd === 'toBrowser' && browserWindow) {
             browserWindow.show();
         } else if (cmd === 'toEditor' && editorWindow) {
             editorWindow.show();
-        } else if (cmd === 'closeTab'){
-            if(browserWindow && browserWindow.isFocused()) {
+        } else if (cmd === 'closeTab') {
+            if (browserWindow && browserWindow.isFocused()) {
                 // console.log("close Tab in preview window")
                 browserWindow.webContents.send('closeTab')
             }
@@ -102,6 +117,7 @@ app.on('ready', () => {
     }
 
     Menu.setApplicationMenu(getMenu(menuAction));
+    vm.init()
 })
 
 // Quit when all windows are closed.
@@ -116,117 +132,62 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if(!editorWindow && appIsReady){
+    if (!editorWindow && appIsReady) {
         createEditorWindow()
     }
 })
 
 
-
-
-
-
-
 ipcMain.on('preview', (event, data) => {
-    console.log("preview: ", data.path)
-    openBrowserWindow();
-    const p = path.join(__dirname, "../../test", data.path)
-    const events = [{
-        name: "newTab",
-        data: {title: "preview"}
-    }]
+    console.log("preview: ", data.title, "at ", data.url)
+    const p = path.join(__dirname, "../../test", data.url)
+
+    openBrowserWindow()
+
+    let viewId = vm.createView()
+
+    vm.loadFileInView(viewId,p,()=>{
+        browserWindow.webContents.send('newTabWithView', {viewId: viewId, url: data.url, title: data.title})
+    })
+})
+
+ipcMain.on('loadURL', (event,data)=>{
     const viewId = vm.createView()
-    vm.loadFileInView(viewId,{filePath:p, cb: ()=>{
-        browserWindow.webContents.send('newTab', {viewId: viewId})
-        }})
-    vm.setView(viewId)
+    console.log("loadURL")
+    if(!data.url.startsWith("http://")){
+        const p = path.join(__dirname, "../../test", data.url)
+        data.url = `file://${p}`
+    }
 
+    console.log("loadURL: ", data.url)
+    vm.loadURLInView(viewId, {url:data.url}).then(()=>{
+        const tabId = null;
+        browserWindow.webContents.send('assignViewToTab', {tabId: tabId,viewId: viewId})
+    })
 })
 
-ipcMain.on("setView", (event,data)=>{
-    vm.setView(data.viewId)
-})
 
-
-
-ipcMain.on("goBackOrForward",(event, data)=>{
-    if(browserWindow){
-        if(data.back) {
+ipcMain.on("goBackOrForward", (event, data) => {
+    if (browserWindow) {
+        if (data.back) {
             vm.getView(data.viewId).webContents.goBack();
-        }else{
+        } else {
             vm.getView(data.viewId).webContents.goForward();
         }
     }
 })
 
 
-/* ViewManager */
-let vm = (function (){
-    let viewMap = {} // id: view
-    let viewStateMap = {} // id: view state
-    let id = 0;
-    const bounds = {x:0, y: 87, height: 713, width:1400}
-
-    function createView(){
-        let view = new BrowserView()
-        id++;
-        view.setBounds(bounds)
-        viewMap[id] = view
-        viewStateMap[id] = {loadedInitialURL: false}
-        return id
+//resize browserviews if browserwindow resize
+ipcMain.on('browserWindowResize',(event, data)=>{
+    bounds = {x:0, y:90, width: data.width, height: data.height-90}
+    vm.setBounds(bounds)
+    if(browserWindow.getBrowserView()) {
+        browserWindow.getBrowserView().setBounds(bounds)
     }
+})
 
-    function loadFileInView(id, args){
-        const p = viewMap[id].webContents.loadFile(args.filePath)
-        if(args.cb){
-            p.then(()=>{args.cb()})
-        }
-    }
-
-    function destroyView (id) {
-        if (viewMap[id] === viewWindow.getBrowserView()) {
-            viewWindow.setBrowserView(null)
-        }
-        viewMap[id].destroy()
-        delete viewMap[id]
-        delete viewStateMap[id]
-    }
-
-    function destroyAllViews () {
-        for (let id in viewMap) {
-            destroyView(id)
-        }
-    }
-
-    function setView (id) {
-        browserWindow.setBrowserView(viewMap[id])
-        viewMap[id].setBounds(bounds)
-    }
-
-    function focusView (id) {
-        // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
-        if (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading()) {
-            viewMap[id].webContents.focus()
-        } else {
-            browserWindow.webContents.focus()
-        }
-    }
-
-    function hideCurrentView () {
-        browserWindow.setBrowserView(null)
-        browserWindow.webContents.focus()
-    }
-
-    function getView (id) {
-        return viewMap[id]
-    }
-
-    return {
-        createView,
-        loadFileInView,
-        getView,
-        setView
-    }
-})();
-
-global.getView = vm.getView
+ipcMain.on('closeWindow', (event)=>{
+    const win = BrowserWindow.fromWebContents(event.sender)
+    win.close()
+})

@@ -10,7 +10,8 @@
     "dev": "cross-env NODE_ENV=development electron .",
     "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
-    "test": "cross-env NODE_ENV=production electron ./build/main/electron.js"
+    "start": "cross-env NODE_ENV=production electron ./build/main/electron.js",
+    "test": "electron test/main.js"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
