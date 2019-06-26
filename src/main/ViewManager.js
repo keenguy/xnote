@@ -8,11 +8,6 @@ let toLoad = null
 
 let bounds = {x: 0, y: 90, height: 713, width: 1400};
 
-// initialize viewMap[0] to be an empty view
-function init() {
-    viewMap[0] = new BrowserView()
-}
-
 function createView(id, events) {
     let view = new BrowserView({
         webPreferences: {
@@ -99,7 +94,7 @@ function setBounds(bs) {
 
 function focusView(id) {
     // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
-    if (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading()) {
+    if (viewMap[id] && (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading())) {
         viewMap[id].webContents.focus()
     } else if (mainWindow) {
         mainWindow.webContents.focus()
@@ -210,7 +205,6 @@ const vm = {
     setWindow,
     clearWindow,
     setBounds,
-    init,
     loadToLoad
 }
 module.exports = vm

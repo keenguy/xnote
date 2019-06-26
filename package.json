@@ -3,19 +3,21 @@
   "version": "0.0.1",
   "description": "A markdown studio for taking notes.",
   "main": "./src/main/electron.js",
-  "author": "keenguy <dujcel@icloud.com>",
+  "author": "guyong <dujcel@icloud.com>",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "export ELECTRON_IS_DEV=true && electron .",
+    "dev": "electron .",
     "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
     "start": "export ELECTRON_IS_DEV=false && electron ./build/main/electron.js",
-    "test": "electron test/main.js"
+    "test": "electron test/main.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.guyong.xnote",
-    "productName": "Xnote",
+    "appId": "com.guyong.xnote1",
+    "productName": "Xnote1",
     "copyright": "Copyright © 2019 ${author}",
     "mac": {
       "target": [
@@ -23,11 +25,9 @@
       ]
     },
     "files": [
-      "build/**/*"
-    ],
-    "directories": {
-      "buildResources": "assets"
-    }
+      "build/**/*",
+      "test/**/*"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
@@ -37,7 +37,7 @@
     "cross-env": "^5.2.0",
     "css-loader": "^3.0.0",
     "electron": "^5.0.3",
-    "electron-builder": "^20.43.0",
+    "electron-builder": "20.41.0",
     "file-loader": "^4.0.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",

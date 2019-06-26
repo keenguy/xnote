@@ -94,7 +94,7 @@ class Header extends React.Component {
         })
 
         window.addEventListener('resize', () => {
-            ipcRenderer.send("browserWindowResize", {height: window.innerHeight, width: window.innerWidth})
+            ipcRenderer.send("domWindowResize", {height: window.innerHeight, width: window.innerWidth})
         });
         // init();
         this.update();

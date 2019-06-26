@@ -120,7 +120,6 @@ app.on('ready', () => {
     }
 
     Menu.setApplicationMenu(getMenu(menuAction));
-    vm.init()
 })
 
 // Quit when all windows are closed.
@@ -140,19 +139,7 @@ app.on('activate', () => {
     }
 })
 
-
-/* views events */
-// const viewEvents = [
-// {event:'new-window',
-//     options:{preventDefault: true},
-//     id: 0
-// },
-//
-// view.webContents.on('will-navigate', (event,url)=>{
-//     event.preventDefault()
-//     console.log("will-navigate: ", url)
-// })
-//     ]
+// editorWindow.webContents events
 ipcMain.on('preview', (event, data) => {
     console.log("preview: ", data.title, "at ", data.url)
     data.url = path.join("file://", __dirname, "../../test", data.url)
@@ -164,27 +151,15 @@ ipcMain.on('preview', (event, data) => {
 
 })
 
-
-
+// viewerWindow.webContents events
 ipcMain.on("newTab", (event, id)=>{
     vm.loadToLoad(id)
 })
 
-// ipcMain.on('loadURL', (event,data)=>{
-//     const viewId = vm.createView()
-//     console.log("loadURL")
-//     if(!data.url.startsWith("http://")){
-//         const p = path.join(__dirname, "../../test", data.url)
-//         data.url = `file://${p}`
-//     }
-//
-//     console.log("loadURL: ", data.url)
-//     vm.loadURLInView(viewId, {url:data.url}).then(()=>{
-//         const tabId = null;
-//         viewerWindow.webContents.send('assignViewToTab', {tabId: tabId,viewId: viewId})
-//     })
-// })
-
+ipcMain.on('closeWindow', (event)=>{
+    const win = viewerWindow.fromWebContents(event.sender)
+    win.close()
+})
 
 ipcMain.on("goBackOrForward", (event, data) => {
     if (viewerWindow) {
@@ -197,8 +172,8 @@ ipcMain.on("goBackOrForward", (event, data) => {
 })
 
 
-//resize views if viewerWindow resize
-ipcMain.on('viewerWindowResize',(event, data)=>{
+// dom events
+ipcMain.on('domWindowResize',(event, data)=>{
     bounds = {x:0, y:90, width: data.width, height: data.height-90}
     vm.setBounds(bounds)
     if(viewerWindow.getviewView()) {
@@ -206,7 +181,3 @@ ipcMain.on('viewerWindowResize',(event, data)=>{
     }
 })
 
-ipcMain.on('closeWindow', (event)=>{
-    const win = viewerWindow.fromWebContents(event.sender)
-    win.close()
-})
