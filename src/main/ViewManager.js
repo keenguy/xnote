@@ -14,27 +14,12 @@ function createView(id, events) {
             nodeIntegration: true
         }
     })
-    // events.forEach(function (ev) {
-    //     view.webContents.on(ev.event, function (e) {
-    //         if (ev.options && ev.options.preventDefault) {
-    //             e.preventDefault()
-    //         }
-    //         mainWindow.webContents.send('view-event', {
-    //             viewId: id,
-    //             eventId: ev.id,
-    //             args: Array.prototype.slice.call(arguments).slice(1)
-    //         })
-    //     })
-    // })
+
     view.webContents.on('new-window', (event, url, frameName, disposition, options) => {
         event.preventDefault()
         console.log("new-window: ", url)
         this.loadURLInNewView({url: url})
     })
-    // view.webContents.on('will-navigate', (event,url)=>{
-    //     event.preventDefault()
-    //     console.log("will-navigate: ", url)
-    // })
 
     view.setBounds(bounds)
 

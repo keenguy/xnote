@@ -1,11 +1,13 @@
 const {app, BrowserWindow, viewView, ipcMain, Menu} = require('electron')
 
-// const md = require('./lib/markdown.js');
+const md = require('../lib/markdown.js');
 const getMenu = require('./menu.js')
 // const url = require('url')
 const path = require('path')
-// const fs = require('fs')
+const fs = require('fs')
 const isDev = require("electron-is-dev");
+const Store = require('electron-store');
+
 
 
 // const Store = require('electron-store');

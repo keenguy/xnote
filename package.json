@@ -50,9 +50,21 @@
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
+    "codemirror": "^5.48.0",
     "electron-is-dev": "^1.1.0",
+    "electron-store": "^4.0.0",
+    "highlight.js": "^9.15.8",
+    "markdown-it": "^8.4.2",
+    "markdown-it-anchor": "^5.2.4",
+    "markdown-it-attrs": "^2.4.1",
+    "markdown-it-container": "^2.0.0",
+    "markdown-it-footnote": "^3.0.1",
+    "markdown-it-task-lists": "^2.1.1",
     "material-design-icons": "^3.0.1",
+    "mathjax": "^2.7.5",
+    "mathjax-node": "^2.1.1",
     "react": "^16.8.6",
+    "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6"
   }
 }
