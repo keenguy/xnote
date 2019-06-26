@@ -15,6 +15,7 @@ const isDev = require("electron-is-dev");
 let editorWindow = null
 let browserWindow = null
 let vm = require('./ViewManager.js')
+// let toLoad = null
 
 const editorPage = "pages/editor.html"
 const browserPage = "pages/browser.html"
@@ -154,9 +155,17 @@ ipcMain.on('preview', (event, data) => {
     console.log("preview: ", data.title, "at ", data.url)
     data.url = path.join("file://", __dirname, "../../test", data.url)
 
-    openBrowserWindow()
+    openBrowserWindow(()=>{
+        vm.loadURLInNewView(data)
+    })
 
-    vm.loadURLInNewView(data)
+
+})
+
+
+
+ipcMain.on("newTab", (event, id)=>{
+    vm.loadToLoad(id)
 })
 
 // ipcMain.on('loadURL', (event,data)=>{

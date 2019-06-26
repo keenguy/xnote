@@ -3,16 +3,17 @@ const {BrowserView, ipcMain} = require('electron')
 let viewMap = {} // id: view
 let viewStateMap = {} // id: view state
 let mainWindow = null
+let toLoad = null
+
 
 let bounds = {x: 0, y: 90, height: 713, width: 1400};
-let id = 0    //
 
 // initialize viewMap[0] to be an empty view
 function init() {
     viewMap[0] = new BrowserView()
 }
 
-function createView(events) {
+function createView(id, events) {
     let view = new BrowserView({
         webPreferences: {
             nodeIntegration: true
@@ -39,9 +40,6 @@ function createView(events) {
     //     event.preventDefault()
     //     console.log("will-navigate: ", url)
     // })
-
-
-    id++
 
     view.setBounds(bounds)
 
@@ -131,11 +129,20 @@ function loadURLInView(id, args) {
 }
 
 function loadURLInNewView(args) {
-    const id = this.createView()
-    return this.loadURLInView(id, args).then(() => {
-        mainWindow.webContents.send('newTabWithView', {viewId: id, url: args.url, title: args.title})
-    })
+    toLoad = args       // load on event "newTab"
+    mainWindow.webContents.send('newTabWithView', {url: args.url, title: args.title})
+
 }
+
+function loadToLoad(id){
+    if(toLoad) {
+        this.createView(id)
+        this.loadURLInView(id, toLoad)
+        toLoad = null
+    }
+}
+
+
 
 ipcMain.on('createView', function (e, args) {
     createView(args.id, args.webPreferencesString, args.boundsString, args.events)
@@ -198,11 +205,12 @@ const vm = {
     createView,
     getView,
     setView,
-    loadURLInNewView,
     loadURLInView,
+    loadURLInNewView,
     setWindow,
     clearWindow,
     setBounds,
-    init
+    init,
+    loadToLoad
 }
 module.exports = vm

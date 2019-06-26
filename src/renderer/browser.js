@@ -89,7 +89,7 @@ class Header extends React.Component {
         })
 
         ipcRenderer.on('newTabWithView', (event, data) => {
-            console.log("newTabWithView: ", data.viewId)
+            // console.log("newTabWithView: ", data.title)
             this.openTab(null, data)
         })
 
@@ -114,10 +114,10 @@ class Header extends React.Component {
             this.tabList.update(tabId, opt)
         } else {
             tabId = this.tabList.add({
-                id: opt.viewId || null,
                 url: opt.url || "",
                 title: opt.title || "New Tab",
             }, this.tabList.count())
+            ipcRenderer.send('newTab', tabId)
         }
         this.tabList.setSelected(tabId)
         // this.tabList.setSelected(tabId)
