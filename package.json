@@ -1,8 +1,8 @@
 {
   "name": "xnote",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "A markdown studio for taking notes.",
-  "main": "./src/main/electron.js",
+  "main": "./build/main/electron.js",
   "author": "guyong <dujcel@icloud.com>",
   "license": "MIT",
   "private": true,
@@ -10,14 +10,14 @@
     "dev": "electron .",
     "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
-    "start": "export ELECTRON_IS_DEV=false && electron ./build/main/electron.js",
+    "start": "electron ./build/main/electron.js",
     "test": "electron test/main.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.guyong.xnote1",
-    "productName": "Xnote1",
+    "appId": "com.guyong.xnote",
+    "productName": "Xnote",
     "copyright": "Copyright © 2019 ${author}",
     "mac": {
       "target": [
@@ -25,9 +25,11 @@
       ]
     },
     "files": [
-      "build/**/*",
-      "test/**/*"
-    ]
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",

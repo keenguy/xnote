@@ -5,6 +5,8 @@ const BUILD_PATH = path.resolve(ROOT_PATH, 'build')
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const merge = require('webpack-merge')
+const baseConfig = require('./webpack.config.base.js')
 
 const electronConfig = {
     target: 'electron-main',
@@ -20,47 +22,14 @@ const electronConfig = {
     }
 };
 
-const editorRendererConfig = {
+const editorRendererConfig = merge(baseConfig,{
     target: 'electron-renderer',
     entry: {index: './src/renderer/editor.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
     },
-    module: {
-        rules: [{
-            test: /\.html$/,
-            use: [{
-                loader: 'html-loader'
-            }]
-        }, {
-            test: /\.(js|jsx)$/,
-            exclude: /node_modules/,
-            use: ["babel-loader"]
-
-        },
-            {
-                test: /\.css$/,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            // you can specify a publicPath here
-                            // by default it uses publicPath in webpackOptions.output
-                            publicPath: '../',
-                            hmr: process.env.NODE_ENV === 'development',
-                        },
-                    },
-                    'css-loader']
-            },
-            {test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]"}
-        ]
-    },
     mode: 'production',
-    node: {
-        __dirname: false,
-        __filename: false
-    },
     plugins: [
         new HtmlWebPackPlugin({
             template: "./src/pages/editor.html",
@@ -73,50 +42,16 @@ const editorRendererConfig = {
             chunkFilename: '[id].css',
         })
     ]
-};
+});
 
-const viewerRendererConfig = {
+const viewerRendererConfig = merge(baseConfig,{
     target: 'electron-renderer',
     entry: {viewer: './src/renderer/viewer.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
     },
-    module: {
-        rules: [{
-            test: /\.html$/,
-            use: [{
-                loader: 'html-loader'
-            }]
-        },
-            {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                use: ["babel-loader"]
-
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            // you can specify a publicPath here
-                            // by default it uses publicPath in webpackOptions.output
-                            publicPath: '../',
-                            hmr: process.env.NODE_ENV === 'development',
-                        },
-                    },
-                    'css-loader']
-            },
-            {test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]"}
-        ]
-    },
     mode: 'production',
-    node: {
-        __dirname: false,
-        __filename: false
-    },
     plugins: [
         new HtmlWebPackPlugin({
             template: "./src/pages/viewer.html",
@@ -129,44 +64,16 @@ const viewerRendererConfig = {
             chunkFilename: '[id].css',
         })
     ]
-};
+});
 
-const previewRendererConfig = {
+const previewRendererConfig = merge(baseConfig,{
     target: 'electron-renderer',
     entry: {preview: './src/renderer/preview.js'},
     output: {
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
     },
-    module: {
-        rules: [
-            {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                use: ["babel-loader"]
-
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            // you can specify a publicPath here
-                            // by default it uses publicPath in webpackOptions.output
-                            publicPath: '../',
-                            hmr: process.env.NODE_ENV === 'development',
-                        },
-                    },
-                    'css-loader']
-            },
-        ]
-    },
     mode: 'production',
-    node: {
-        __dirname: false,
-        __filename: false
-    },
     plugins: [
         new HtmlWebPackPlugin({
             template: "./src/pages/preview.html",
@@ -179,8 +86,7 @@ const previewRendererConfig = {
             chunkFilename: '[id].css',
         })
     ]
-
-}
+})
 
 
 module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig, previewRendererConfig];
