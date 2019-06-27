@@ -193,9 +193,13 @@ ipcMain.on('sync', (event, data) => {
     // console.log("sync: ", data.line)
     let idx = data.toWin;
     if (idx < 0 || idx >= 2) return;
-    const window = idx == 0 ? editorWindow : viewerWindow
-    // window.webContents.send('sync', data.line);
-    window.show();
+    if(idx == 1 && viewerWindow){
+        viewerWindow.getBrowserView().webContents.send('sync', data.line)
+        viewerWindow.show()
+    }else if(editorWindow) {
+        editorWindow.webContents.send('sync', data.line);
+        editorWindow.show()
+    }
 })
 
 

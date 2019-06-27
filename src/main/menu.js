@@ -32,7 +32,7 @@ function getMenu(menuAction) {
                     label: 'Save',
                     accelerator: 'Cmd+S',
                     click: ()=>{
-                        menuAction('callEdit', {msg: 'save'});
+                        menuAction('callEditor', {msg: 'save'});
                     }
                 }
             ]

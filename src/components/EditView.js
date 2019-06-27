@@ -22,6 +22,7 @@ class EditView extends React.Component {
     componentDidMount() {
         ipcRenderer.on("sync", (event, line) => {
             this.props.changeView('edit');
+            console.log("jumpTo: ", line)
             this.jumpTo(line)
         })
         ipcRenderer.on("preview", (event, line) => {
@@ -31,7 +32,7 @@ class EditView extends React.Component {
         this.cm.on('mousedown', (cm, event) => {
             if (event.ctrlKey) {
                 const line = cm.coordsChar({left: event.pageX, top: event.pageY}).line;
-                ipcRenderer.send('sync', {toWin: 1, line: line})
+                ipcRenderer.send('sync', {toWin: 1, line: line, path: this.props.file.path})
             }
         })
     }

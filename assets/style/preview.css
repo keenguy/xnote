@@ -8,6 +8,10 @@
   background-color: #fe3;
 }
 
+.preview .sync-mark {
+  background-color: #fe3;
+}
+
 .main {
   height: 100%;
   margin-right: 250px;

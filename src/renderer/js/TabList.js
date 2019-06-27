@@ -125,7 +125,14 @@ class TabList {
     getAtIndex(index) {
         return this.tabs[index] || undefined
     }
-
+    getIdFromURL(url){
+        for (var i = 0; i < this.tabs.length; i++) {
+            if (this.tabs[i].url == url) {
+                return this.tabs[i].id
+            }
+        }
+        return null
+    }
     setSelected(id) {
         if (!this.has(id)) {
             throw new ReferenceError('Attempted to select a tab that does not exist.')

@@ -1,47 +1,25 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+const {ipcRenderer} = require('electron')
 
-import '../../assets/style/highlight/xcode.css'
-import '../../assets/style/github-markdown.css'
-import '../../assets/style/preview.css'
-import '../../assets/style/mathjax.css'
+document.title = "Preview";
 
-const {remote, ipcRenderer} = window.require('electron')
 
-class Preview extends React.Component {
-    componentDidMount() {
-        console.log("preview did mount")
-        const content_div = document.querySelector('#content')
-        const toc_div = document.querySelector('#toc')
-        ipcRenderer.on('update', (event, data) => {
-            console.log("update received")
-            if (data.title){
-                document.title = data.title
-            }
-            content_div.innerHTML = data.content
-            toc_div.innerHTML = data.toc
-        });
-
-        ipcRenderer.on('find', ()=>{
-            let findInPage = new FindInPage(remote.getCurrentWebContents())
-            findInPage.openFindWindow()
-        })
+ipcRenderer.on('sync', (event, line) => {
+    console.log('sync: ', line)
+    const res = document.querySelectorAll('[data-source-line]');
+    for (let el of res) {
+        const lineNo = parseInt(el.getAttribute('data-source-line'), 10)
+        if (lineNo >= line) {
+            console.log("jumpTo: ", lineNo)
+            el.scrollIntoView({block:'center', inline:'start'});
+            el.classList.add('sync-mark');
+            setTimeout(()=>{el.classList.remove('sync-mark')}, 1200)
+            break;
+        }
     }
+})
 
-    render() {
-        return (
-            <>
-                <div className='main'>
-                    <article id='content' className="markdown-body w3-padding-64 w3-container">
-                    </article>
-                </div>
-                <aside id="toc"></aside>
-            </>
-        );
-
+function syncToEdit(event, line) {
+    if (event.ctrlKey) {
+        ipcRenderer.send('sync', {toWin: 0, line: line})
     }
 }
-
-
-const preview = document.getElementById('preview');
-ReactDOM.render(<Preview/>, preview);

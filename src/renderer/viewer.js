@@ -9,6 +9,19 @@ import './js/initPreview.js'
 const {ipcRenderer, webContents} = window.require('electron')
 
 class Tabs extends React.Component {
+
+    // componentDidMount() {
+    //     ipcRenderer.on('sync', (event, data) => {
+    //         const tabList = this.props.tabList;
+    //         const id = tabList.getIdFromURL(data.url)
+    //         if(id){
+    //             tabList.setSelected(id)
+    //             tabList.getView(id).webContents.send('sync', data.line)
+    //         }
+    //     })
+    // }
+
+
     render() {
         const tabList = this.props.tabList;
         const selected = tabList.getIndexOfSelected();
