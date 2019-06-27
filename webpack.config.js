@@ -5,6 +5,8 @@ const BUILD_PATH = path.resolve(ROOT_PATH, 'public')    // development
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const merge = require('webpack-merge')
+const baseConfig = require('./webpack.config.base.js')
 
 const electronConfig = {
     target: 'electron-main',
@@ -24,7 +26,7 @@ const electronConfig = {
     }
 };
 
-const editorRendererConfig = {
+const editorRendererConfig = merge.smart(baseConfig,{
     target: 'electron-renderer',
     entry: {editor: './src/renderer/editor.js'},
     output: {
@@ -79,9 +81,9 @@ const editorRendererConfig = {
             chunkFilename: '[id].css',
         })
     ]
-};
+});
 
-const viewerRendererConfig = {
+const viewerRendererConfig = merge.smart(baseConfig,{
     target: 'electron-renderer',
     entry: {viewer: './src/renderer/viewer.js'},
     output: {
@@ -135,9 +137,9 @@ const viewerRendererConfig = {
             chunkFilename: '[id].css',
         })
     ]
-};
+});
 
-const previewRendererConfig = {
+const previewRendererConfig = merge.smart(baseConfig,{
     target: 'electron-renderer',
     entry: {preview: './src/renderer/preview.js'},
     output: {
@@ -186,5 +188,5 @@ const previewRendererConfig = {
         })
     ]
 
-}
+})
 module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig, previewRendererConfig];
