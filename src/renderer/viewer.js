@@ -113,16 +113,10 @@ class Header extends React.Component {
         if (tabId) {
             this.tabList.update(tabId, opt)
         } else {
-            let previewURL = ''
-            if (opt.data && opt.data.path){
-                previewURL = opt.data.path
-            }
             tabId = this.tabList.add({
                 url: opt.url || "",
-                previewURL: previewURL,
                 title: opt.title || "New Tab",
             }, this.tabList.count())
-            console.log("preview: ", previewURL)
             ipcRenderer.send('newTab', tabId)
         }
         this.tabList.setSelected(tabId)

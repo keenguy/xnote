@@ -75,15 +75,15 @@ class EditView extends React.Component {
         return (
             <div id="edit" className="tabview" style={{display: this.props.show ? 'flex' : 'none'}}>
                 <div className="tool-bar bar">
-                    <span><i className={`material-icons ${this.props.file.needSave ? 'active' : null}`}
-                             onClick={this.props.saveFile}>save</i></span>
-                    <span><i className="material-icons" onClick={this.preview}>play_arrow</i></span>
+                    <span><i className={`fa fa-save ${this.props.file.needSave ? 'active' : null}`}
+                             onClick={this.props.saveFile}></i></span>
+                    <span><i className="fa fa-eye" onClick={this.preview}></i></span>
                 </div>
                 <div id="edit-main">
                     <div id="edit-left" style={{display: this.props.sidebar ? 'flex' : 'none'}}>
                         <div className="bar left-bar">
-                            <i className="material-icons" onClick={()=>this.toggleNav(0)}>bookmark_border</i>
-                            <i className="material-icons" onClick={()=>this.toggleNav(1)}>book</i>
+                            <i className="fa fa-bookmark-o" onClick={()=>this.toggleNav(0)}></i>
+                            <i className="fa fa-book" onClick={()=>this.toggleNav(1)}></i>
                         </div>
                         <EditTOC file={this.props.file} jumpTo={this.jumpTo} show={this.state.nav === 0}/>
                         <EditPrj basePath={this.props.basePath}

@@ -118,11 +118,7 @@ function loadToLoad(id){
     if(toLoad) {
         this.createView(id)
         const data = toLoad.data
-        this.loadURLInView(id, toLoad).then(()=>{
-            if(data) {
-                viewMap[id].webContents.send('update', data)
-            }
-        })
+        this.loadURLInView(id, toLoad)
         toLoad = null
     }
 }

@@ -1,17 +1,18 @@
-const  {ipcRenderer} = window.require("electron")
+const {ipcRenderer} = window.require("electron")
+
 class TabList {
-    constructor (tabs) {
+    constructor(tabs) {
         this.tabs = tabs || []
         // this.parentTaskList = parentTaskList
     }
-    add (tab = {} , index) {
+
+    add(tab = {}, index) {
         var tabId = String(tab.id || Math.round(Math.random() * 100000000000000000)) // you can pass an id that will be used, or a random one will be generated.
 
         var newTab = {
             url: tab.url || '',
             title: tab.title || '',
             id: tabId,         // same as corresponding view's id (if view exists)
-            previewURL: tab.previewURL || '',
             lastActivity: tab.lastActivity || Date.now(),
             secure: tab.secure,
             private: tab.private || false,
@@ -31,7 +32,8 @@ class TabList {
 
         return tabId
     }
-    update (id, data) {
+
+    update(id, data) {
         if (!this.has(id)) {
             throw new ReferenceError('Attempted to update a tab that does not exist.')
         }
@@ -45,7 +47,8 @@ class TabList {
             // this.parentTaskList.emit('tab-updated', id, key)
         }
     }
-    destroy (id) {
+
+    destroy(id) {
         const index = this.getIndex(id)
         if (index < 0) return false
 
@@ -56,11 +59,13 @@ class TabList {
 
         return index
     }
-    destroyAll () {
+
+    destroyAll() {
         // this = [] doesn't work, so set the length of the array to 0 to remove all of the itemss
         this.tabs.length = 0
     }
-    get (id) {
+
+    get(id) {
         if (!id) { // no id provided, return an array of all tabs
             // it is important to deep-copy the tab objects when returning them. Otherwise, the original tab objects get modified when the returned tabs are modified (such as when processing a url).
             var tabsToReturn = []
@@ -76,11 +81,12 @@ class TabList {
         }
         return undefined
     }
-    has (id) {
+
+    has(id) {
         return this.getIndex(id) > -1
     }
 
-    getIndex (id) {
+    getIndex(id) {
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].id === id) {
                 return i
@@ -88,19 +94,17 @@ class TabList {
         }
         return -1
     }
-    getURLOfSelected(){
+
+    getURLOfSelected() {
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].selected) {
-                if(this.tabs[i].previewURL){
-                    return this.tabs[i].previewURL
-                }else {
-                    return this.tabs[i].url
-                }
+                return this.tabs[i].url
             }
         }
         return "Unknown URL"
     }
-    getIndexOfSelected(){
+
+    getIndexOfSelected() {
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].selected) {
                 return i
@@ -108,7 +112,8 @@ class TabList {
         }
         return -1
     }
-    getSelected () {
+
+    getSelected() {
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].selected) {
                 return this.tabs[i].id
@@ -116,10 +121,12 @@ class TabList {
         }
         return null
     }
-    getAtIndex (index) {
+
+    getAtIndex(index) {
         return this.tabs[index] || undefined
     }
-    setSelected (id) {
+
+    setSelected(id) {
         if (!this.has(id)) {
             throw new ReferenceError('Attempted to select a tab that does not exist.')
         }
@@ -132,16 +139,18 @@ class TabList {
                 this.tabs[i].lastActivity = Date.now()
             }
         }
-        console.log("TabList setView: ", {id:id})
-        ipcRenderer.send('setView', {id:id, focus: true})
+        console.log("TabList setView: ", {id: id})
+        ipcRenderer.send('setView', {id: id, focus: true})
         // ipcRenderer.send('setView', {id:id, focus: true})
 
         // this.parentTaskList.emit('tab-selected', id)
     }
-    count () {
+
+    count() {
         return this.tabs.length
     }
-    isEmpty () {
+
+    isEmpty() {
         if (!this.tabs || this.tabs.length === 0) {
             return true
         }
@@ -152,16 +161,20 @@ class TabList {
 
         return false
     }
-    forEach (fun) {
+
+    forEach(fun) {
         return this.tabs.forEach(fun)
     }
-    map (fun){
+
+    map(fun) {
         return this.tabs.map(fun)
     }
-    splice (...args) {
+
+    splice(...args) {
         return this.tabs.splice.apply(this.tabs, args)
     }
-    getStringifyableState () {
+
+    getStringifyableState() {
         return this.tabs
     }
 }

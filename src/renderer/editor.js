@@ -8,7 +8,7 @@ import 'codemirror/addon/search/searchcursor.js'
 import 'codemirror/addon/search/jump-to-line.js'
 import 'codemirror/addon/dialog/dialog.js'
 import 'codemirror/addon/dialog/dialog.css'
-import "material-design-icons/iconfont/material-icons.css"
+import "../../assets/style/font-awesome-4.7.0/css/font-awesome.min.css"
 import '../../assets/style/codemirror.css'
 
 import '../../assets/style/custom.css'
@@ -181,7 +181,7 @@ class Editor extends React.Component {
                 </div>
                 <div className="footer-bar bar">
                     <div className='footer-left'>
-                        <i className="material-icons" onClick={this.toggleSideBar}>view_array</i>
+                        <i className="fa fa-columns" onClick={this.toggleSideBar}></i>
                     </div>
                     <Info info={this.state.info}/>
                     <div className='footer-right'>

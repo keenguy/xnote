@@ -187,4 +187,4 @@ const previewRendererConfig = {
     ]
 
 }
-module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig, previewRendererConfig];
+module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];

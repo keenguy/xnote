@@ -8,7 +8,7 @@ const fs = require('fs')
 const fsPromise = require('fs').promises
 const isDev = require("electron-is-dev");
 const Store = require('electron-store');
-
+const Handlebars = require('handlebars')
 
 
 const schema = {
@@ -167,15 +167,20 @@ ipcMain.on('preview', (event, file) => {
 
 })
 
-async function showPreview(title, content, fp) {
-    let html = await md.render(content);
-    const p = path.join(__dirname, '../pages/preview.html')
-    let url
+let previewTempl = null
+async function showPreview(title, text, fp) {
+    if(!previewTempl){
+        const templ = await fsPromise.readFile(path.join(__dirname, "../pages/preview.html"), {encoding:'utf8'})
+        previewTempl = Handlebars.compile(templ)
+    }
+    const content = await md.render(text);
+    const toc = md.output.tocHtml
+    const html = previewTempl({content: content, title: title, toc: toc})
 
+    await fsPromise.writeFile(fp,html)
     const args={
         title: title,
         url: `file://${fp}`,
-        data:{content: html, toc: md.output.tocHtml, path: fp}
     }
     openviewerWindow(()=>{
         vm.loadURLInNewView(args)
@@ -229,7 +234,7 @@ ipcMain.on("newTab", (event, id)=>{
 })
 
 ipcMain.on('closeWindow', (event)=>{
-    const win = viewerWindow.fromWebContents(event.sender)
+    const win = BrowserWindow.fromWebContents(event.sender)
     win.close()
 })
 
