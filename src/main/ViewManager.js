@@ -110,7 +110,7 @@ function loadURLInView(id, args) {
 
 function loadURLInNewView(args) {
     toLoad = args       // load on event "newTab"
-    mainWindow.webContents.send('newTabWithView', {url: args.url, title: args.title})
+    mainWindow.webContents.send('newTabWithView', args)
 
 }
 

@@ -10,7 +10,8 @@ class TabList {
         var newTab = {
             url: tab.url || '',
             title: tab.title || '',
-            id: tabId,
+            id: tabId,         // same as corresponding view's id (if view exists)
+            previewURL: tab.previewURL || '',
             lastActivity: tab.lastActivity || Date.now(),
             secure: tab.secure,
             private: tab.private || false,
@@ -90,10 +91,14 @@ class TabList {
     getURLOfSelected(){
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].selected) {
-                return this.tabs[i].url
+                if(this.tabs[i].previewURL){
+                    return this.tabs[i].previewURL
+                }else {
+                    return this.tabs[i].url
+                }
             }
         }
-        return ""
+        return "Unknown URL"
     }
     getIndexOfSelected(){
         for (var i = 0; i < this.tabs.length; i++) {

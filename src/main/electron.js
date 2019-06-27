@@ -160,23 +160,22 @@ ipcMain.on('preview', (event, file) => {
     const title = path.basename(fp)
     console.log("preview: ", title, " at ", file.path)
 
-    showPreview(title, file.content)
+    const pos = fp.indexOf('.')
+    fp = fp.substr(0, pos > -1 ? pos : fp.length) + '.html'
+
+    showPreview(title, file.content, fp)
 
 })
 
-async function showPreview(title, content) {
+async function showPreview(title, content, fp) {
     let html = await md.render(content);
     const p = path.join(__dirname, '../pages/preview.html')
     let url
-    if(isDev){
-        url = 'http://localhost:3000/pages/preview.html'
-    }else{
-        url = `file://${p}`
-    }
+
     const args={
         title: title,
-        url: url,
-        data:{content: html, toc: md.output.tocHtml}
+        url: `file://${fp}`,
+        data:{content: html, toc: md.output.tocHtml, path: fp}
     }
     openviewerWindow(()=>{
         vm.loadURLInNewView(args)
