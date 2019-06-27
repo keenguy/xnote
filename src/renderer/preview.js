@@ -19,6 +19,7 @@ ipcRenderer.on('sync', (event, line) => {
 })
 
 function syncToEdit(event, line) {
+    console.log("sync to editor: ", line)
     if (event.ctrlKey) {
         ipcRenderer.send('sync', {toWin: 0, line: line})
     }
