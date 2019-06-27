@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import "material-design-icons/iconfont/material-icons.css"
-import '../../assets/style/preview.css'
+import '../../assets/style/viewer.css'
 import TabList from './js/TabList'
 
 import './js/initPreview.js'

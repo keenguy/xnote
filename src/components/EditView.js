@@ -62,7 +62,7 @@ class EditView extends React.Component {
 
     preview() {
         this.props.saveFile()
-        ipcRenderer.send('preview', {file: this.props.file});
+        ipcRenderer.send('preview', this.props.file);
     }
 
     render() {
@@ -82,8 +82,8 @@ class EditView extends React.Component {
                 <div id="edit-main">
                     <div id="edit-left" style={{display: this.props.sidebar ? 'flex' : 'none'}}>
                         <div className="bar left-bar">
-                            <i className="fa fa-bookmark-o" onClick={()=>this.toggleNav(0)}/>
-                            <i className="fa fa-book" onClick={()=>this.toggleNav(1)}/>
+                            <i className="material-icons" onClick={()=>this.toggleNav(0)}>bookmark_border</i>
+                            <i className="material-icons" onClick={()=>this.toggleNav(1)}>book</i>
                         </div>
                         <EditTOC file={this.props.file} jumpTo={this.jumpTo} show={this.state.nav === 0}/>
                         <EditPrj basePath={this.props.basePath}

@@ -109,7 +109,7 @@ function getMenu(menuAction) {
                     label: 'Switch to Browser',
                     accelerator: 'Cmd+Option+Right',
                     click: () => {
-                        menuAction('toBrowser')
+                        menuAction('toViewer')
                     }
                 },
                 {
@@ -120,10 +120,10 @@ function getMenu(menuAction) {
                     }
                 },
                 {
-                    label: 'preview',
+                    label: 'viewer.scss',
                     accelerator: 'Cmd+Option+C',
                     click: () => {
-                        menuAction('callEdit', {msg:'preview'});
+                        menuAction('callEditor', {msg:'preview'});
                     }
                 }
             ]

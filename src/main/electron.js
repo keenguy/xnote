@@ -5,6 +5,7 @@ const getMenu = require('./menu.js')
 // const url = require('url')
 const path = require('path')
 const fs = require('fs')
+const fsPromise = require('fs').promises
 const isDev = require("electron-is-dev");
 const Store = require('electron-store');
 
@@ -113,7 +114,7 @@ app.on('ready', () => {
     createEditorWindow()
 
     function menuAction(cmd, opt) {
-        if (cmd === 'toview' && viewerWindow) {
+        if (cmd === 'toViewer' && viewerWindow) {
             viewerWindow.show();
         } else if (cmd === 'toEditor' && editorWindow) {
             editorWindow.show();
@@ -123,13 +124,14 @@ app.on('ready', () => {
                 viewerWindow.webContents.send('closeTab')
             }
         }
-        // else if (cmd === 'callEdit' && editorWindow) {
-        //     editorWindow.webContents.send(opt.msg, opt.data);
-        // } else if (cmd === 'callPreview' && viewerWindow) {
-        //     viewerWindow.webContents.send(opt.msg, opt.data);
-        // } else if (cmd === 'findInPreview' && viewerWindow && viewerWindow.isFocused){
-        //     viewerWindow.webContents.send('find')
-        // }
+        else if (cmd === 'callEditor' && editorWindow) {
+            editorWindow.webContents.send(opt.msg, opt.data);
+        }
+        else if (cmd === 'callViewer' && viewerWindow) {
+            viewerWindow.webContents.send(opt.msg, opt.data);
+        } else if (cmd === 'findInPreview' && viewerWindow && viewerWindow.isFocused){
+            viewerWindow.webContents.send('find')
+        }
     }
 
     Menu.setApplicationMenu(getMenu(menuAction));
@@ -153,25 +155,50 @@ app.on('activate', () => {
 })
 
 // editorWindow.webContents events
-ipcMain.on('preview', (event, data) => {
-    console.log("preview: ", data.title, "at ", data.url)
-    data.url = path.join("file://", __dirname, "../../test", data.url)
+ipcMain.on('preview', (event, file) => {
+    let fp = file.path
+    const title = path.basename(fp)
+    console.log("preview: ", title, " at ", file.path)
 
+
+    var pos = fp.lastIndexOf(".");
+    fp = fp.substr(0, pos < 0 ? fp.length : pos) + ".html";
+
+    showPreview(title, file.content, fp)
+
+})
+let templ_before = ''
+let templ_after = ''
+async function showPreview(title, content, fp) {
+    if(!templ_before){
+        let templ = fs.readFileSync(path.join(__dirname, "../pages/preview.html"), 'utf8')
+        const pos = templ.indexOf('{content}')
+        templ_before = templ.substr(0, pos)
+        templ_after = templ.substr(pos+10, templ.length - pos-10)
+    }
+    let html = await md.render(content);
+    html = templ_before + html + templ_after;
+    const fh = await fsPromise.open(fp, 'w+')
+    await fh.write(html)
+    await fh.close()
+    const data={
+        title: title,
+        url: path.join("file://", fp)
+    }
     openviewerWindow(()=>{
         vm.loadURLInNewView(data)
     })
 
-
-})
+}
 
 //asynchronous, sync markdown and html windows.
 ipcMain.on('sync', (event, data) => {
     // console.log("sync: ", data.line)
     let idx = data.toWin;
-    if (idx < 0 || idx >= windows.length || !windows[idx]) return;
+    if (idx < 0 || idx >= 2) return;
     const window = idx == 0 ? editorWindow : viewerWindow
-    windows.webContents.send('sync', data.line);
-    windows.show();
+    // window.webContents.send('sync', data.line);
+    window.show();
 })
 
 
@@ -230,8 +257,8 @@ ipcMain.on("goBackOrForward", (event, data) => {
 ipcMain.on('domWindowResize',(event, data)=>{
     bounds = {x:0, y:90, width: data.width, height: data.height-90}
     vm.setBounds(bounds)
-    if(viewerWindow.getviewView()) {
-        viewerWindow.getviewView().setBounds(bounds)
+    if(viewerWindow.getBrowserView()) {
+        viewerWindow.getBrowserView().setBounds(bounds)
     }
 })
 
