@@ -65,7 +65,7 @@ function setView(id) {
     if (mainWindow) {
         mainWindow.setBrowserView(viewMap[id])
         if (viewMap[id]) {
-            // viewMap[id].webContents.openDevTools()
+            viewMap[id].webContents.openDevTools()
             viewMap[id].setBounds(bounds)
         }
         mainWindow.setBrowserView(viewMap[id])
@@ -117,7 +117,12 @@ function loadURLInNewView(args) {
 function loadToLoad(id){
     if(toLoad) {
         this.createView(id)
-        this.loadURLInView(id, toLoad)
+        const data = toLoad.data
+        this.loadURLInView(id, toLoad).then(()=>{
+            if(data) {
+                viewMap[id].webContents.send('update', data)
+            }
+        })
         toLoad = null
     }
 }

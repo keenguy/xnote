@@ -160,33 +160,26 @@ ipcMain.on('preview', (event, file) => {
     const title = path.basename(fp)
     console.log("preview: ", title, " at ", file.path)
 
-
-    var pos = fp.lastIndexOf(".");
-    fp = fp.substr(0, pos < 0 ? fp.length : pos) + ".html";
-
-    showPreview(title, file.content, fp)
+    showPreview(title, file.content)
 
 })
-let templ_before = ''
-let templ_after = ''
-async function showPreview(title, content, fp) {
-    if(!templ_before){
-        let templ = fs.readFileSync(path.join(__dirname, "../pages/preview.html"), 'utf8')
-        const pos = templ.indexOf('{content}')
-        templ_before = templ.substr(0, pos)
-        templ_after = templ.substr(pos+10, templ.length - pos-10)
-    }
+
+async function showPreview(title, content) {
     let html = await md.render(content);
-    html = templ_before + html + templ_after;
-    const fh = await fsPromise.open(fp, 'w+')
-    await fh.write(html)
-    await fh.close()
-    const data={
+    const p = path.join(__dirname, '../pages/preview.html')
+    let url
+    if(isDev){
+        url = 'http://localhost:3000/pages/preview.html'
+    }else{
+        url = `file://${p}`
+    }
+    const args={
         title: title,
-        url: path.join("file://", fp)
+        url: url,
+        data:{content: html, toc: md.output.tocHtml}
     }
     openviewerWindow(()=>{
-        vm.loadURLInNewView(data)
+        vm.loadURLInNewView(args)
     })
 
 }
