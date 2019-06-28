@@ -6,7 +6,7 @@ let mainWindow = null
 let toLoad = null
 
 
-let bounds = {x: 0, y: 90, height: 713, width: 1400};
+let bounds = {x: 0, y: 90, height: 790, width: 1400};
 
 function createView(id, events) {
     let view = new BrowserView({
@@ -20,6 +20,11 @@ function createView(id, events) {
         console.log("new-window: ", url)
         this.loadURLInNewView({url: url})
     })
+
+    view.webContents.on('did-start-navigation', (event, url)=>{
+        mainWindow.send('updateTab', {url:url, id:id})
+    })
+
 
     view.setBounds(bounds)
 
@@ -65,7 +70,7 @@ function setView(id) {
     if (mainWindow) {
         mainWindow.setBrowserView(viewMap[id])
         if (viewMap[id]) {
-            // viewMap[id].webContents.openDevTools()
+            viewMap[id].webContents.openDevTools()
             viewMap[id].setBounds(bounds)
         }
         mainWindow.setBrowserView(viewMap[id])

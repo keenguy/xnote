@@ -10,18 +10,6 @@ const {ipcRenderer, webContents} = window.require('electron')
 
 class Tabs extends React.Component {
 
-    // componentDidMount() {
-    //     ipcRenderer.on('sync', (event, data) => {
-    //         const tabList = this.props.tabList;
-    //         const id = tabList.getIdFromURL(data.url)
-    //         if(id){
-    //             tabList.setSelected(id)
-    //             tabList.getView(id).webContents.send('sync', data.line)
-    //         }
-    //     })
-    // }
-
-
     render() {
         const tabList = this.props.tabList;
         const selected = tabList.getIndexOfSelected();
@@ -105,6 +93,13 @@ class Header extends React.Component {
             // console.log("newTabWithView: ", data.title)
             this.openTab(null, data)
         })
+
+        ipcRenderer.on('updateTab', (event, data) => {
+            console.log("updateTab", data)
+            this.tabList.update(data.id, {url:data.url})
+            this.update()
+        })
+
 
         window.addEventListener('resize', () => {
             ipcRenderer.send("domWindowResize", {height: window.innerHeight, width: window.innerWidth})
