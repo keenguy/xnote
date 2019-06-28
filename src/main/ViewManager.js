@@ -65,7 +65,7 @@ function setView(id) {
     if (mainWindow) {
         mainWindow.setBrowserView(viewMap[id])
         if (viewMap[id]) {
-            viewMap[id].webContents.openDevTools()
+            // viewMap[id].webContents.openDevTools()
             viewMap[id].setBounds(bounds)
         }
         mainWindow.setBrowserView(viewMap[id])

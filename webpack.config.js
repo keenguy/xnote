@@ -15,6 +15,16 @@ const electronConfig = {
         path: BUILD_PATH,
         filename: 'main/[name].js'
     },
+    // module:{
+    //     rules:[
+    //
+    //         {
+    //             test: /\.(js|jsx)$/,
+    //             use: ["babel-loader"]
+    //
+    //         },
+    //     ]
+    // },
     mode: 'development',
     devServer: {
         contentBase: path.join(ROOT_PATH, 'src'),
@@ -68,25 +78,28 @@ const viewerRendererConfig = merge(baseConfig,{
     ]
 });
 
-const previewRendererConfig = merge(baseConfig,{
-    target: 'electron-renderer',
-    entry: {preview: './src/renderer/preview.js'},
-    output: {
-        path: BUILD_PATH,
-        filename: 'renderer/[name].js'
-    },
-    plugins: [
-        new HtmlWebPackPlugin({
-            template: "./src/pages/preview.html",
-            filename: "./pages/preview.html"
-        }),
-        new MiniCssExtractPlugin({
-            // Options similar to the same options in webpackOptions.output
-            // both options are optional
-            filename: '[name].css',
-            chunkFilename: '[id].css',
-        })
-    ]
-
-})
-module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig, previewRendererConfig];
+// const previewRendererConfig = merge(baseConfig,{
+//     target: 'electron-renderer',
+//     entry: {preview: './src/renderer/preview.js'},
+//     output: {
+//         path: BUILD_PATH,
+//         filename: 'renderer/[name].js'
+//     },
+//     node:{
+//         __dirname: true
+//     },
+//     plugins: [
+//         new HtmlWebPackPlugin({
+//             template: "./src/pages/preview.html",
+//             filename: "./pages/preview.html"
+//         }),
+//         new MiniCssExtractPlugin({
+//             // Options similar to the same options in webpackOptions.output
+//             // both options are optional
+//             filename: '[name].css',
+//             chunkFilename: '[id].css',
+//         })
+//     ]
+//
+// })
+module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];

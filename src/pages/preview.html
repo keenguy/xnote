@@ -4,30 +4,39 @@
     <meta charset="UTF-8">
     <title>{{title}}</title>
 
-        <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/highlight/xcode.css">
-<!--        <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/w3-theme-black.css">-->
+    <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/highlight/xcode.css">
+    <!--        <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/w3-theme-black.css">-->
     <!--    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">-->
     <!--    <link rel="stylesheet" href="lib/css/font-awesome-4.7.0/css/font-awesome.min.css">-->
-        <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/github-markdown.css">
-        <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/preview.css">
+    <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/github-markdown.css">
+    <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/preview.css">
     <link rel="stylesheet" href="/Users/yonggu/WebstormProjects/xnote/assets/style/mathjax.css">
 
-
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath:[['$$','$$'],['\\[','\\]']]
+        }
+    });
+    </script>
+    <script async
+            src='/Users/yonggu/WebstormProjects/xnote/node_modules/mathjax/MathJax.js?config=TeX-AMS_SVG'></script>
     <!--    <link rel="stylesheet" href="/assets/lib/mermaid/mermaid.css">-->
     <!--    <link rel="stylesheet" href="/assets/lib/highlight/styles/atom-one-light.css">-->
 
 </head>
 <body>
-    <div class="preview">
-        <div class='main'>
-            <article id='content' class="markdown-body w3-padding-64 w3-container">
-                {{{content}}}
-            </article>
-        </div>
-        <aside id="toc">
-            {{{toc}}}
-        </aside>
+<div class="preview">
+    <div class='main'>
+        <article id='content' class="markdown-body w3-padding-64 w3-container">
+            {{{content}}}
+        </article>
     </div>
+    <aside id="toc">
+        {{{toc}}}
+    </aside>
+</div>
 <script src="/Users/yonggu/WebstormProjects/xnote/src/renderer/preview.js"></script>
 </body>
 </html>

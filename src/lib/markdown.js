@@ -31,10 +31,10 @@ md.output = {tocHtml:'', promises: []};
 
 md.use(require('markdown-it-task-lists'))
     .use(require('markdown-it-footnote'))
-    .use( require("markdown-it-anchor"))
+    .use( require("./markdown-it-anchor"))
     .use(require('markdown-it-attrs'))
     .use(require('./markdown-toc'),{output: md.output})
-    .use(require('./markdown-mathjax.js'), {output: md.output})
+    // .use(require('./markdown-mathjax.js'), {output: md.output})
     .use(require('./markdown-it-container'), 'theorem',{
         validate: function(params) {
             return true
