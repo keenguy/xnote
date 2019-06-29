@@ -44,16 +44,18 @@ class NavBar extends React.Component {
     }
 
     render() {
-        const tab = this.props.tabList.getSelected() || {loading: false, url:''}
+        const tab = this.props.tabList.getSelected() || {loading: false, url: ''}
 
         return (
             <div id="nav-bar">
                 <div className="nav-btns">
                     <i className={`material-icons${this.props.canGoBack ? '' : ' disabled'}`}
-                       onClick={this.props.goBackOrForward.bind(null, true)}>arrow_back</i>
+                       onClick={this.props.callView.bind(null, null, 'goBack')}>arrow_back</i>
                     <i className={`material-icons${this.props.canGoForward ? '' : ' disabled'}`}
-                       onClick={this.props.goBackOrForward.bind(null, false)}>arrow_forward</i>
-                    <i className='material-icons'>{tab.loading ? 'cancel' : 'refresh'}</i>
+                       onClick={this.props.callView.bind(null, null, 'goForward')}>arrow_forward</i>
+                    <i className='material-icons'
+                       onClick={tab.loading ? this.props.callView.bind(null, null, 'stop') : this.props.callView.bind(null, null, 'reload')}>
+                        {tab.loading ? 'close' : 'refresh'}</i>
                 </div>
 
                 <div id='place'>
@@ -82,7 +84,7 @@ class Header extends React.Component {
         this.closeTab = this.closeTab.bind(this)
         this.openTab = this.openTab.bind(this)
         this.update = this.update.bind(this)
-        this.goBackOrForward = this.goBackOrForward.bind(this)
+        this.callView = this.callView.bind(this)
     }
 
     componentDidMount() {
@@ -95,7 +97,6 @@ class Header extends React.Component {
         })
 
         ipcRenderer.on('updateTab', (event, data) => {
-            console.log("updateTab", data)
             const id = data.id
             delete data.id
             this.tabList.update(id, data)
@@ -110,15 +111,24 @@ class Header extends React.Component {
         this.update();
     }
 
-    goBackOrForward(back) {
-        const view = this.tabList.getSelected()
-        if (view) {
-            ipcRenderer.send('goBackOrForward', {viewId: view.id, back: back})
+
+    //possible fun: goBack, goForward, stop, reload
+    callView(id, fun) {
+        if (!id) {
+            id = this.tabList.getSelected().id
+            if (!id) return;
         }
+        ipcRenderer.send('callView', {id: id, fun: fun})
     }
 
+    // goBackOrForward(back) {
+    //     const view = this.tabList.getSelected()
+    //     if (view) {
+    //         ipcRenderer.send('callView', {id: view.id, fun: back ? 'goBack' : 'goForward'})
+    //     }
+    // }
+
     openTab(tabId, opt) {
-        console.log("open Tab: ", tabId)
         opt = opt || {}
         if (tabId) {
             this.tabList.update(tabId, opt)
@@ -160,6 +170,19 @@ class Header extends React.Component {
         this.update()
     }
 
+    // stopLoad(){
+    //     const id = this.tabList.getSelected().id;
+    //     if(id) {
+    //         ipcRenderer.send('callView', {fun: 'stop', id: id})
+    //     }
+    // }
+    // reload(){
+    //     const id = this.tabList.getSelected().id;
+    //     if(id) {
+    //         ipcRenderer.send('callView', {fun: 'reload', id: id})
+    //     }
+    // }
+
     update() {
         this.setState({
             update: !this.state.update
@@ -179,8 +202,9 @@ class Header extends React.Component {
                     </div>
                 </div>
                 <NavBar canGoBack={this.state.canGoBack} canGoForward={this.state.canGoForward}
-                        goBackOrForward={this.goBackOrForward}
-                        tabList={this.tabList}/>
+                        callView={this.callView}
+                        tabList={this.tabList}
+                />
             </>
         );
     }

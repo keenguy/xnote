@@ -18,7 +18,7 @@ function createView(id, events) {
 
     view.webContents.on('new-window', (event, url, frameName, disposition, options) => {
         event.preventDefault()
-        console.log("new-window: ", url)
+        // console.log("new-window: ", url)
         this.loadURLInNewView({url: url})
     })
 
@@ -27,8 +27,17 @@ function createView(id, events) {
     })
     
     view.webContents.on('page-title-updated', (event, title)=>{
-        console.log("View ", id, " updateTab title: ", title)
         mainWindow.send('updateTab', {id:id, title: title})
+    })
+
+    view.webContents.on('did-start-loading', (event)=>{
+        // console.log("View ", id, " start loading")
+
+        mainWindow.send('updateTab', {id:id, loading: true})
+    })
+    view.webContents.on('did-stop-loading', (event)=>{
+        // console.log("View ", id, " stop loading")
+        mainWindow.send('updateTab', {id:id, loading: false})
     })
 
     view.setBounds(bounds)

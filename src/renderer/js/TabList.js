@@ -126,7 +126,6 @@ class TabList {
                 this.tabs[i].lastActivity = Date.now()
             }
         }
-        console.log("TabList setView: ", {id: id})
         ipcRenderer.send('setView', {id: id, focus: true})
         // ipcRenderer.send('setView', {id:id, focus: true})
 

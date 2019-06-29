@@ -16,7 +16,6 @@ if(isDev){
     appPath = path.join(__dirname, "../..")
     buildPath = appPath
 }
-console.log("appPath: ", appPath)
 const schema = {
     basePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes'},
     curFilePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes/javascript/promise.md'},
@@ -61,7 +60,6 @@ function createEditorWindow(cb) {
         console.log("dev, loadFile")
         editorWindow.loadURL("http://localhost:3000/" + editorPage)
     } else {
-        console.log("not dev, loadFile")
         editorWindow.loadFile(path.join(__dirname,"../",editorPage))
     }
     editorWindow.on('closed', function () {
@@ -163,8 +161,6 @@ app.on('activate', () => {
 ipcMain.on('preview', (event, file) => {
     let fp = file.path
     const title = path.basename(fp, '.md')
-    console.log("preview: ", title, " at ", file.path)
-
     const pos = fp.indexOf('.')
     fp = fp.substr(0, pos > -1 ? pos : fp.length) + '.html'
 
@@ -238,7 +234,7 @@ ipcMain.on('writeFile', (event, data) => {
     }
 })
 
-// viewerWindow.webContents events
+// viewerWindow.webContents events: newTab, closeWindow, callView
 ipcMain.on("newTab", (event, id)=>{
     vm.loadToLoad(id)
 })
@@ -248,15 +244,26 @@ ipcMain.on('closeWindow', (event)=>{
     win.close()
 })
 
-ipcMain.on("goBackOrForward", (event, data) => {
-    if (viewerWindow) {
-        if (data.back) {
-            vm.getView(data.viewId).webContents.goBack();
-        } else {
-            vm.getView(data.viewId).webContents.goForward();
-        }
+ipcMain.on('callView', (event, data)=>{
+    let wc = null
+    try {
+        wc = vm.getView(data.id).webContents
+        if(!wc || !data.fun) return;
+        wc[data.fun]()
+    }catch{
+        return
     }
 })
+
+// ipcMain.on("goBackOrForward", (event, data) => {
+//     if (viewerWindow) {
+//         if (data.back) {
+//             vm.getView(data.viewId).webContents.goBack();
+//         } else {
+//             vm.getView(data.viewId).webContents.goForward();
+//         }
+//     }
+// })
 
 
 
