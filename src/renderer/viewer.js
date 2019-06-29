@@ -44,7 +44,7 @@ class NavBar extends React.Component {
     }
 
     render() {
-        const url = this.props.tabList.getURLOfSelected()
+        const tab = this.props.tabList.getSelected() || {loading: false, url:''}
 
         return (
             <div id="nav-bar">
@@ -53,10 +53,11 @@ class NavBar extends React.Component {
                        onClick={this.props.goBackOrForward.bind(null, true)}>arrow_back</i>
                     <i className={`material-icons${this.props.canGoForward ? '' : ' disabled'}`}
                        onClick={this.props.goBackOrForward.bind(null, false)}>arrow_forward</i>
+                    <i className='material-icons'>{tab.loading ? 'cancel' : 'refresh'}</i>
                 </div>
 
                 <div id='place'>
-                    <span>{url}</span>
+                    <span>{tab.url}</span>
                 </div>
 
             </div>
@@ -110,9 +111,9 @@ class Header extends React.Component {
     }
 
     goBackOrForward(back) {
-        const viewId = this.tabList.getSelected()
-        if (viewId) {
-            ipcRenderer.send('goBackOrForward', {viewId: viewId, back: back})
+        const view = this.tabList.getSelected()
+        if (view) {
+            ipcRenderer.send('goBackOrForward', {viewId: view.id, back: back})
         }
     }
 
@@ -139,7 +140,7 @@ class Header extends React.Component {
     }
 
     closeTab(id) {
-        const selectedId = this.tabList.getSelected()
+        const selectedId = this.tabList.getSelected().id
         let selectedIndex = this.tabList.getIndex(selectedId)
 
         if (!id || selectedIndex === this.tabList.getIndex(id)) {

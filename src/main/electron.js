@@ -162,7 +162,7 @@ app.on('activate', () => {
 // editorWindow.webContents events
 ipcMain.on('preview', (event, file) => {
     let fp = file.path
-    const title = path.basename(fp)
+    const title = path.basename(fp, '.md')
     console.log("preview: ", title, " at ", file.path)
 
     const pos = fp.indexOf('.')

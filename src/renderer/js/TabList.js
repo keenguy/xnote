@@ -1,36 +1,41 @@
 const {ipcRenderer} = window.require("electron")
 
+class Tab{
+    constructor(opt={}){
+        const tabId = String(opt.id || Math.round(Math.random() * 100000000000000000))
+        this.id = tabId
+        this.url = opt.url || ''
+        this.title = opt.title || 'New Tab'
+        this.loading = opt.loading || false
+        this.selected = opt.selected || false
+        this.lastActivity = opt.lastActivity || Date.now()
+
+    }
+}
 class TabList {
     constructor(tabs) {
         this.tabs = tabs || []
         // this.parentTaskList = parentTaskList
     }
 
-    add(tab = {}, index) {
-        var tabId = String(tab.id || Math.round(Math.random() * 100000000000000000)) // you can pass an id that will be used, or a random one will be generated.
-
-        var newTab = {
-            url: tab.url || '',
-            title: tab.title || '',
-            id: tabId,         // same as corresponding view's id (if view exists)
-            lastActivity: tab.lastActivity || Date.now(),
-            secure: tab.secure,
-            private: tab.private || false,
-            readerable: tab.readerable || false,
-            backgroundColor: tab.backgroundColor,
-            foregroundColor: tab.foregroundColor,
-            selected: tab.selected || false
-        }
+    add(opt = {}, index) {
+        var newTab = new Tab(opt)
 
         if (index) {
             this.tabs.splice(index, 0, newTab)
         } else {
             this.tabs.push(newTab)
         }
+        return newTab.id
+    }
 
-        // this.parentTaskList.emit('tab-added', tabId)
-
-        return tabId
+    getSelected() {
+        for (var i = 0; i < this.tabs.length; i++) {
+            if (this.tabs[i].selected) {
+                return this.tabs[i]
+            }
+        }
+        return {}
     }
 
     update(id, data) {
@@ -95,15 +100,6 @@ class TabList {
         return -1
     }
 
-    getURLOfSelected() {
-        for (var i = 0; i < this.tabs.length; i++) {
-            if (this.tabs[i].selected) {
-                return this.tabs[i].url
-            }
-        }
-        return "Unknown URL"
-    }
-
     getIndexOfSelected() {
         for (var i = 0; i < this.tabs.length; i++) {
             if (this.tabs[i].selected) {
@@ -113,26 +109,10 @@ class TabList {
         return -1
     }
 
-    getSelected() {
-        for (var i = 0; i < this.tabs.length; i++) {
-            if (this.tabs[i].selected) {
-                return this.tabs[i].id
-            }
-        }
-        return null
-    }
-
     getAtIndex(index) {
         return this.tabs[index] || undefined
     }
-    getIdFromURL(url){
-        for (var i = 0; i < this.tabs.length; i++) {
-            if (this.tabs[i].url == url) {
-                return this.tabs[i].id
-            }
-        }
-        return null
-    }
+
     setSelected(id) {
         if (!this.has(id)) {
             throw new ReferenceError('Attempted to select a tab that does not exist.')

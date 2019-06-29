@@ -74,7 +74,7 @@ function onPageLoad (webview, tabId, e) {
             return
         }
         // capture a preview image if a new page has been loaded
-        if (tabId === tabs.getSelected() && tabs.get(tabId).url !== url) {
+        if (tabId === tabs.getSelected().id && tabs.get(tabId).url !== url) {
             setTimeout(function () {
                 // sometimes the page isn't visible until a short time after the did-finish-load event occurs
                 captureCurrentTab()
