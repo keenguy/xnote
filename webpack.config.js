@@ -45,7 +45,7 @@ const editorRendererConfig = merge(baseConfig,{
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/editor.html",
+            template: "src/pages/editor.html",
             filename: "./pages/editor.html"
         }),
         new MiniCssExtractPlugin({
@@ -66,8 +66,8 @@ const viewerRendererConfig = merge(baseConfig,{
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/viewer.html",
-            filename: "./pages/viewer.html"
+            template: "src/pages/viewer.html",
+            filename: "pages/viewer.html"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -78,28 +78,4 @@ const viewerRendererConfig = merge(baseConfig,{
     ]
 });
 
-// const previewRendererConfig = merge(baseConfig,{
-//     target: 'electron-renderer',
-//     entry: {preview: './src/renderer/preview.js'},
-//     output: {
-//         path: BUILD_PATH,
-//         filename: 'renderer/[name].js'
-//     },
-//     node:{
-//         __dirname: true
-//     },
-//     plugins: [
-//         new HtmlWebPackPlugin({
-//             template: "./src/pages/preview.html",
-//             filename: "./pages/preview.html"
-//         }),
-//         new MiniCssExtractPlugin({
-//             // Options similar to the same options in webpackOptions.output
-//             // both options are optional
-//             filename: '[name].css',
-//             chunkFilename: '[id].css',
-//         })
-//     ]
-//
-// })
 module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];

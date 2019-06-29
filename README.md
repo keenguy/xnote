@@ -9,8 +9,10 @@ None is perfect for me. Features I want:
 * convenient to export (pdf, blog site)
 
 ## Todo:
+- [x] fix hard coded paths in preview.html
 - [ ] export to blog site
 - [ ] file navigation in editorWindow
+- [ ] open md file from html file in viewerWindow
 - [ ] editable url 
 - [ ] fix title of viewerWindow
 - [ ] menu

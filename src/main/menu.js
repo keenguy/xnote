@@ -120,7 +120,7 @@ function getMenu(menuAction) {
                     }
                 },
                 {
-                    label: 'viewer.scss',
+                    label: 'Preview',
                     accelerator: 'Cmd+Option+C',
                     click: () => {
                         menuAction('callEditor', {msg:'preview'});

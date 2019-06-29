@@ -1,5 +1,6 @@
 const {BrowserView, ipcMain} = require('electron')
 
+const isDev = require('electron-is-dev')
 let viewMap = {} // id: view
 let viewStateMap = {} // id: view state
 let mainWindow = null
@@ -70,7 +71,9 @@ function setView(id) {
     if (mainWindow) {
         mainWindow.setBrowserView(viewMap[id])
         if (viewMap[id]) {
-            viewMap[id].webContents.openDevTools()
+            if(isDev) {
+                viewMap[id].webContents.openDevTools()
+            }
             viewMap[id].setBounds(bounds)
         }
         mainWindow.setBrowserView(viewMap[id])

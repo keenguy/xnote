@@ -10,7 +10,13 @@ const isDev = require("electron-is-dev");
 const Store = require('electron-store');
 const Handlebars = require('handlebars')
 
-
+let appPath = app.getAppPath()
+let buildPath = path.join(appPath, 'build')
+if(isDev){
+    appPath = path.join(__dirname, "../..")
+    buildPath = appPath
+}
+console.log("appPath: ", appPath)
 const schema = {
     basePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes'},
     curFilePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes/javascript/promise.md'},
@@ -24,7 +30,6 @@ global.sharedObject = {
     state: sharedState,
     store: store
 }
-
 
 let editorWindow = null
 let viewerWindow = null
@@ -175,9 +180,10 @@ async function showPreview(title, text, fp) {
     }
     const content = await md.render(text);
     const toc = md.output.tocHtml
-    const html = previewTempl({content: content, title: title, toc: toc})
+    const html = previewTempl({content: content, title: title, toc: toc, appPath: appPath, buildPath: buildPath})
 
     await fsPromise.writeFile(fp,html)
+
     const args={
         title: title,
         url: `file://${fp}`,

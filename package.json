@@ -2,7 +2,7 @@
   "name": "xnote",
   "version": "0.2.0",
   "description": "A markdown studio for taking notes.",
-  "main": "build/main/electron.js",
+  "main": "build/src/main/electron.js",
   "author": "guyong <dujcel@icloud.com>",
   "license": "MIT",
   "private": true,
@@ -11,7 +11,7 @@
     "build-dev": "rm -rf public && webpack",
     "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
-    "start": "electron ./build/main/electron.js",
+    "start": "cross-env NODE_ENV=production electron ./build/main/electron.js",
     "start-dev": "electron ./public/main/electron.js",
     "test": "electron test/main.js",
     "pack": "electron-builder --dir",
@@ -29,6 +29,8 @@
     "files": [
       "build/**/*"
     ],
+    "asarUnpack": ["build/pages/preview.html", "build/renderer/preview.js"],
+
     "directories": {
       "buildResources": "assets"
     }

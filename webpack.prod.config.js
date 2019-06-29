@@ -14,7 +14,7 @@ const electronConfig = {
     entry: {electron: './src/main/electron.js'},
     output: {
         path: BUILD_PATH,
-        filename: 'main/[name].js'
+        filename: 'src/main/[name].js'
     },
     mode: 'production',
     node: {
@@ -28,13 +28,13 @@ const editorRendererConfig = merge(baseConfig, {
     entry: {index: './src/renderer/editor.js'},
     output: {
         path: BUILD_PATH,
-        filename: 'renderer/[name].js'
+        filename: 'src/renderer/[name].js'
     },
     mode: 'production',
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/editor.html",
-            filename: "./pages/editor.html"
+            template: "src/pages/editor.html",
+            filename: "src/pages/editor.html"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -50,13 +50,13 @@ const viewerRendererConfig = merge(baseConfig, {
     entry: {viewer: './src/renderer/viewer.js'},
     output: {
         path: BUILD_PATH,
-        filename: 'renderer/[name].js'
+        filename: 'src/renderer/[name].js'
     },
     mode: 'production',
     plugins: [
         new HtmlWebPackPlugin({
-            template: "./src/pages/viewer.html",
-            filename: "pages/viewer.html"
+            template: "src/pages/viewer.html",
+            filename: "src/pages/viewer.html"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -65,7 +65,13 @@ const viewerRendererConfig = merge(baseConfig, {
             chunkFilename: '[id].css',
         }),
         new CopyPlugin([
-            {from: 'src/pages/preview.html', to: path.join(BUILD_PATH, 'pages/preview.html')},
+            {from: 'src/pages/preview.html', to: path.join(BUILD_PATH, 'src/pages/preview.html')},
+            {from: 'src/renderer/preview.js', to: path.join(BUILD_PATH, 'src/renderer/preview.js')},
+            {from: 'assets/style/preview.css', to: path.join(BUILD_PATH, 'assets/style/preview.css')},
+            {from: 'assets/style/github-markdown.css', to: path.join(BUILD_PATH, 'assets/style/github-markdown.css')},
+            {from: 'assets/style/mathjax.css', to: path.join(BUILD_PATH, 'assets/style/mathjax.css')},
+            {from: 'assets/style/highlight/xcode.css', to: path.join(BUILD_PATH, 'assets/style/highlight/xcode.css')},
+
         ])
     ]
 });

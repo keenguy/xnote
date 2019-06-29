@@ -11,7 +11,7 @@ import 'codemirror/addon/dialog/dialog.css'
 import "../../assets/style/font-awesome-4.7.0/css/font-awesome.min.css"
 import '../../assets/style/codemirror.css'
 
-import '../../assets/style/custom.css'
+import '../../assets/style/editor.css'
 
 import HomeView from '../components/HomeView'
 import EditView from '../components/EditView'
