@@ -25,7 +25,11 @@ function createView(id, events) {
     view.webContents.on('did-start-navigation', (event, url)=>{
         mainWindow.send('updateTab', {url:url, id:id})
     })
-
+    
+    view.webContents.on('page-title-updated', (event, title)=>{
+        console.log("View ", id, " updateTab title: ", title)
+        mainWindow.send('updateTab', {id:id, title: title})
+    })
 
     view.setBounds(bounds)
 

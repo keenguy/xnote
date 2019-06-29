@@ -90,13 +90,14 @@ class Header extends React.Component {
         })
 
         ipcRenderer.on('newTabWithView', (event, data) => {
-            // console.log("newTabWithView: ", data.title)
             this.openTab(null, data)
         })
 
         ipcRenderer.on('updateTab', (event, data) => {
             console.log("updateTab", data)
-            this.tabList.update(data.id, {url:data.url})
+            const id = data.id
+            delete data.id
+            this.tabList.update(id, data)
             this.update()
         })
 
@@ -168,7 +169,8 @@ class Header extends React.Component {
         return (
             <>
                 <div id="tab-bar" className="windowDragHandle">
-                    <Tabs tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}/>
+                    <Tabs tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}
+                    />
                     <div id="tab-btns">
                         <i className="material-icons">menu</i>
                         <i id="add-tab-button" className="material-icons"

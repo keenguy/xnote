@@ -1,8 +1,5 @@
 const {ipcRenderer} = require('electron')
 
-document.title = "Preview";
-
-
 ipcRenderer.on('sync', (event, line) => {
     console.log('sync: ', line)
     const res = document.querySelectorAll('[data-source-line]');
