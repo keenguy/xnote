@@ -8,9 +8,10 @@ body {
   -webkit-app-region: drag
 }
 
-button {
+button,input {
   -webkit-app-region: no-drag;
 }
+
 
 
 #header {
@@ -79,6 +80,15 @@ button {
     border-radius: 16px;
     background-color: rgba(238, 240, 241, 1);
     max-width: 900px;
+    input[type=text]{
+      width: 100%;
+      border: none;
+      background-color: inherit;
+      font-size: 16px;
+      &:focus {
+        outline: none;
+      }
+    }
   }
 }
 

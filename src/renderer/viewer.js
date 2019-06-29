@@ -41,6 +41,31 @@ class Tabs extends React.Component {
 class NavBar extends React.Component {
     constructor(props) {
         super(props)
+        const tab = this.props.tabList.getSelected() || {loading: false, url: ''}
+        this.state = {
+            oldURL: tab.url,
+            url: tab.url
+        }
+        this.handleURLChange = this.handleURLChange.bind(this)
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState){
+        const oldURL = prevState.oldURL
+        const url = nextProps.tabList.getSelected().url
+        if(url !== oldURL){
+            return {oldURL:url, url: url};
+        }
+        else return null;
+    }
+    componentDidMount() {
+        // const tab = this.props.tabList.getSelected() || {loading: false, url: ''}
+        // this.setState({
+        //     url: tab.url
+        // })
+    }
+
+    handleURLChange(event) {
+        this.setState({url: event.target.value});
     }
 
     render() {
@@ -59,7 +84,7 @@ class NavBar extends React.Component {
                 </div>
 
                 <div id='place'>
-                    <span>{tab.url}</span>
+                    <input id="url" type="text" value={this.state.url} onChange={this.handleURLChange}></input>
                 </div>
 
             </div>

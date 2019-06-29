@@ -8,7 +8,7 @@ body {
   -webkit-app-region: drag;
 }
 
-button {
+button, input {
   -webkit-app-region: no-drag;
 }
 
@@ -73,6 +73,15 @@ button {
   border-radius: 16px;
   background-color: #eef0f1;
   max-width: 900px;
+}
+#nav-bar #place input[type=text] {
+  width: 100%;
+  border: none;
+  background-color: inherit;
+  font-size: 16px;
+}
+#nav-bar #place input[type=text]:focus {
+  outline: none;
 }
 
 #tabs {
