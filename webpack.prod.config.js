@@ -76,34 +76,26 @@ const viewerRendererConfig = merge(baseConfig, {
     ]
 });
 
-// const previewRendererConfig = merge(baseConfig,{
-//     target: 'electron-renderer',
-//     entry: {preview: './src/renderer/preview.js'},
-//     output: {
-//         path: BUILD_PATH,
-//         filename: 'renderer/[name].js'
-//     },
-//     mode: 'production',
-//     plugins: [
-//         new HtmlWebPackPlugin({
-//             template: "./src/pages/preview.html",
-//             filename: "pages/preview.html"
-//         }),
-//         new MiniCssExtractPlugin({
-//             // Options similar to the same options in webpackOptions.output
-//             // both options are optional
-//             filename: 'assets/[name].css',
-//             chunkFilename: '[id].css',
-//         })
-//     ]
-// })
-// const copyConfig = {
-//     mode: 'production',
-//     plugins: [
-//         new CopyPlugin([
-//             {from: 'src/pages/preview.html', to: path.join(BUILD_PATH, 'pages/preview.html')},
-//         ])
-//     ]
-// }
+const homeRendererConfig = merge(baseConfig,{
+    target: 'electron-renderer',
+    entry: {home: './src/renderer/home.js'},
+    mode: 'production',
+    output: {
+        path: BUILD_PATH,
+        filename: 'src/renderer/[name].js'
+    },
+    plugins: [
+        new HtmlWebPackPlugin({
+            template: "src/pages/home.html",
+            filename: "src/pages/home.html"
+        }),
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: '[name].css',
+            chunkFilename: '[id].css',
+        })
+    ]
+});
 
-module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];
+module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig, homeRendererConfig];

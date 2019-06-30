@@ -11,7 +11,7 @@
     "build-dev": "rm -rf public && webpack",
     "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
-    "start": "cross-env NODE_ENV=production electron ./build/main/electron.js",
+    "start": "cross-env NODE_ENV=production electron ./build/src/main/electron.js",
     "start-dev": "electron ./public/main/electron.js",
     "test": "electron test/main.js",
     "pack": "electron-builder --dir",

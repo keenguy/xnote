@@ -43,6 +43,7 @@ const editorRendererConfig = merge(baseConfig,{
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
     },
+    mode:'development',
     plugins: [
         new HtmlWebPackPlugin({
             template: "src/pages/editor.html",
@@ -64,6 +65,7 @@ const viewerRendererConfig = merge(baseConfig,{
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
     },
+    mode:'development',
     plugins: [
         new HtmlWebPackPlugin({
             template: "src/pages/viewer.html",
@@ -85,6 +87,7 @@ const homeRendererConfig = merge(baseConfig,{
         path: BUILD_PATH,
         filename: 'renderer/[name].js'
     },
+    mode:'development',
     plugins: [
         new HtmlWebPackPlugin({
             template: "src/pages/home.html",
