@@ -78,4 +78,25 @@ const viewerRendererConfig = merge(baseConfig,{
     ]
 });
 
-module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig];
+const homeRendererConfig = merge(baseConfig,{
+    target: 'electron-renderer',
+    entry: {home: './src/renderer/home.js'},
+    output: {
+        path: BUILD_PATH,
+        filename: 'renderer/[name].js'
+    },
+    plugins: [
+        new HtmlWebPackPlugin({
+            template: "src/pages/home.html",
+            filename: "pages/home.html"
+        }),
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: '[name].css',
+            chunkFilename: '[id].css',
+        })
+    ]
+});
+
+module.exports = [electronConfig, editorRendererConfig, viewerRendererConfig, homeRendererConfig];

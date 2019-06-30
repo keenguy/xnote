@@ -243,6 +243,13 @@ code {
   }
 }
 
+#program{
+  flex-direction: column;
+  i.disabled{
+    color: #fafafa
+  }
+}
+
 /*edit view */
 
 .left-bar {

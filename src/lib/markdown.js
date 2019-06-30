@@ -1,15 +1,15 @@
 const hljs = require('highlight.js')
 const Markdown = require('markdown-it');
 
-Markdown.prototype.render = async function (src, env) {
-    env = env || {};
-    const tokens = this.parse(src, env);
-    if(this.output && this.output.promises){
-        return Promise.all(this.output.promises).then(()=>{
-            return this.renderer.render(tokens, this.options, env);
-        })
-    }
-};
+// Markdown.prototype.render = async function (src, env) {
+//     env = env || {};
+//     const tokens = this.parse(src, env);
+//     if(this.output && this.output.promises){
+//         return Promise.all(this.output.promises).then(()=>{
+//             return this.renderer.render(tokens, this.options, env);
+//         })
+//     }
+// };
 
 const md = new Markdown({
     highlight: function (str, lang) {

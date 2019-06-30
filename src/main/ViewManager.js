@@ -1,4 +1,5 @@
 const {BrowserView, ipcMain} = require('electron')
+const path = require('path')
 
 const isDev = require('electron-is-dev')
 let viewMap = {} // id: view
@@ -8,6 +9,11 @@ let toLoad = null
 
 
 let bounds = {x: 0, y: 90, height: 790, width: 1400};
+const homePath = 'pages/home.html'
+home = {url: `file://${path.join(__dirname, '../', homePath)}`}
+if(isDev){
+    home.url = `http://localhost:3000/${homePath}`
+}
 
 function createView(id, events) {
     let view = new BrowserView({
@@ -135,12 +141,14 @@ function loadURLInNewView(args) {
 
 }
 
-function loadToLoad(id){
+function loadToLoad(id, home){
     if(toLoad) {
         this.createView(id)
-        const data = toLoad.data
         this.loadURLInView(id, toLoad)
         toLoad = null
+    }else{
+        this.createView(id)
+        this.loadURLInView(id, home)
     }
 }
 

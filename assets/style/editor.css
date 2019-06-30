@@ -228,6 +228,13 @@ code {
   outline: none;
 }
 
+#program {
+  flex-direction: column;
+}
+#program i.disabled {
+  color: #fafafa;
+}
+
 /*edit view */
 .left-bar {
   flex-direction: column;

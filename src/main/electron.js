@@ -1,6 +1,5 @@
 const {app, BrowserWindow, viewView, ipcMain, Menu} = require('electron')
 
-const md = require('../lib/markdown.js');
 const getMenu = require('./menu.js')
 // const url = require('url')
 const path = require('path')
@@ -8,7 +7,10 @@ const fs = require('fs')
 const fsPromise = require('fs').promises
 const isDev = require("electron-is-dev");
 const Store = require('electron-store');
-const Handlebars = require('handlebars')
+
+const {walkDirSync} = require('../utils/dir')
+const convert = require('../lib/converter')()
+
 
 let appPath = app.getAppPath()
 let buildPath = path.join(appPath, 'build')
@@ -16,6 +18,10 @@ if(isDev){
     appPath = path.join(__dirname, "../..")
     buildPath = appPath
 }
+const convertOpt = {appPath, buildPath}
+
+
+
 const schema = {
     basePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes'},
     curFilePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes/javascript/promise.md'},
@@ -29,6 +35,7 @@ global.sharedObject = {
     state: sharedState,
     store: store
 }
+
 
 let editorWindow = null
 let viewerWindow = null
@@ -161,25 +168,22 @@ app.on('activate', () => {
 ipcMain.on('preview', (event, file) => {
     let fp = file.path
     const title = path.basename(fp, '.md')
+    convert({title:title, content: file.content, filePath: fp}, convertOpt)
+
     const pos = fp.indexOf('.')
     fp = fp.substr(0, pos > -1 ? pos : fp.length) + '.html'
-
-    showPreview(title, file.content, fp)
-
+    showPreview(title, fp)
 })
 
-let previewTempl = null
-async function showPreview(title, text, fp) {
-    if(!previewTempl){
-        const templ = await fsPromise.readFile(path.join(__dirname, "../pages/preview.html"), {encoding:'utf8'})
-        previewTempl = Handlebars.compile(templ)
+ipcMain.on('openHtml', (event,file)=>{
+    if(!file.title){
+        file.title = path.basename(file.path)
     }
-    const content = await md.render(text);
-    const toc = md.output.tocHtml
-    const html = previewTempl({content: content, title: title, toc: toc, appPath: appPath, buildPath: buildPath})
+    showPreview(file.title, file.path)
+})
 
-    await fsPromise.writeFile(fp,html)
 
+async function showPreview(title, fp) {
     const args={
         title: title,
         url: `file://${fp}`,
@@ -187,7 +191,53 @@ async function showPreview(title, text, fp) {
     openviewerWindow(()=>{
         vm.loadURLInNewView(args)
     })
+}
 
+ipcMain.on('processDirSync', (event, data)=>{
+    const dirPath = data.dirPath || store.get('basePath')
+    console.log(data.task, dirPath)
+    const files = walkDirSync(dirPath)
+    switch(data.task){
+        case 'render':
+            compile(files, data.override)
+            break;
+        case 'genHome':
+            genHome(dirPath, files);
+            break;
+        case 'clean':
+            console.log("begin cleaning")
+            clean(files)
+            break;
+    }
+    event.returnValue = true
+})
+
+function clean(files){
+    files.forEach((entry)=>{
+        if(entry.files){
+            clean(entry.files)
+        }else if(path.extname(entry.path) === '.html'){
+            console.log("removing: ", entry.path)
+            fs.unlinkSync(entry.path)
+        }
+    })
+}
+
+function compile(files, override){
+    files.forEach((entry)=>{
+        if(entry.files){
+            compile(entry.files,override)
+        }else if(path.extname(entry.path) === '.md'){
+            const mdPath = entry.path
+            const htmlPath = mdPath.substr(0, mdPath.length - 3) + '.html'
+            if(override || !fs.existsSync(htmlPath)){
+                console.log("rending", mdPath)
+                const src = {title: path.basename(mdPath,'.md'), filePath: mdPath}
+                convert(src,convertOpt)
+                console.log("render", htmlPath, "done")
+            }
+        }
+    })
 }
 
 //asynchronous, sync markdown and html windows.
@@ -203,17 +253,6 @@ ipcMain.on('sync', (event, data) => {
         editorWindow.show()
     }
 })
-
-
-// ipcMain.on('preview', (event, data) => {
-//     // if (!data.save && preview_win) return;
-//
-//     const p = data.file.path;
-//     const pos = p.lastIndexOf(".");
-//     const title = p.substr(0, pos < 0 ? p.length : pos) + ".html";
-//
-//     showPreview(data, title);
-// })
 
 //synchronous
 ipcMain.on('readFile', (event,data)=>{
@@ -236,7 +275,7 @@ ipcMain.on('writeFile', (event, data) => {
 
 // viewerWindow.webContents events: newTab, closeWindow, callView
 ipcMain.on("newTab", (event, id)=>{
-    vm.loadToLoad(id)
+    vm.loadToLoad(id, home)
 })
 
 ipcMain.on('closeWindow', (event)=>{
@@ -269,7 +308,7 @@ ipcMain.on('callView', (event, data)=>{
 
 // dom events
 ipcMain.on('domWindowResize',(event, data)=>{
-    bounds = {x:0, y:90, width: data.width, height: data.height-90}
+    const bounds = {x:0, y:90, width: data.width, height: data.height-90}
     vm.setBounds(bounds)
     if(viewerWindow.getBrowserView()) {
         viewerWindow.getBrowserView().setBounds(bounds)

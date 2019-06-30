@@ -19,30 +19,6 @@ import {Info} from '../components/shared'
 
 const {ipcRenderer, remote} = window.require('electron');
 
-// class Header extends React.Component{
-//     componentDidMount() {
-//         document.addEventListener('click', function (event) {
-//             // console.log(event.target.href)
-//             let url = event.target.getAttribute('href')
-//             if (event.target.tagName === 'A') {
-//                 event.preventDefault()
-//                 ipcRenderer.send('preview', {url: event.target.getAttribute('href'), title: event.target.text})
-//             }
-//         })
-//     }
-//
-//     back(){
-//
-//     }
-//     render(){
-//         return (
-//             <div className='nav'>
-//                 <i className="fa fa-arrow-left" aria-hidden="true" onClick={this.back}>back</i>
-//             </div>
-//         );
-//     }
-// }
-
 class Editor extends React.Component {
     constructor(props) {
         super(props);
@@ -65,6 +41,7 @@ class Editor extends React.Component {
         this.changeView = this.changeView.bind(this)
         this.toggleSideBar = this.toggleSideBar.bind(this)
         this.showInfo = this.showInfo.bind(this)
+        this.processDirSync = this.processDirSync.bind(this)
     }
 
     componentDidMount() {
@@ -159,6 +136,10 @@ class Editor extends React.Component {
         this.setState({sidebar: next})
     }
 
+    processDirSync(dirPath, task, override){
+        return ipcRenderer.sendSync('processDirSync', {dirPath:dirPath, task:task, override: override})
+    }
+
     render() {
         return (
             <div className="editview">
@@ -169,7 +150,9 @@ class Editor extends React.Component {
 
                 <div id="main">
                     <HomeView openFile={this.openFile} dirPath={this.store.get('basePath')} show={this.state.view === 'home'}
-                              recentFiles={this.state.recentFiles}/>
+                              recentFiles={this.state.recentFiles}
+                              processDirSync={this.processDirSync}
+                    />
                     <EditView basePath={this.store.get('basePath')}
                               openFile={this.openFile}
                               file={this.state.file}

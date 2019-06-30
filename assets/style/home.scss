@@ -1,0 +1,14 @@
+#home{
+  max-width: 980px;
+  margin: 20px auto;
+  input[type=text] {
+    width: 100%;
+    padding: 4px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 17px;
+    &:focus{
+      outline: none;
+    }
+  }
+}

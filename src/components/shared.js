@@ -4,6 +4,8 @@ import React from 'react'
 const fs = window.require('fs')
 const path = window.require('path')
 
+const {walkDirSync} = require('../utils/dir')
+
 class FileItem extends React.Component {
     render() {
         const file = this.props.file;
@@ -12,9 +14,20 @@ class FileItem extends React.Component {
         if (file.date) {
             date = <span className='date'>{file.date.toLocaleString()}</span>
         }
-        return <li className="file" onClick={(e) => this.props.openFile(file.path)}>
-            <span>{name}</span> {date}
-        </li>
+        let res
+        // if (this.props.openFile) {
+        res = (
+            <li className="file" onClick={(e) => this.props.openFile(file.path)}>
+                <span>{name}</span> {date}
+            </li>)
+        // } else {
+        //     const relPath = path.relative(this.props.basePath, file.path)
+        //     res = (
+        //         <li className="file">
+        //             <a href={`file://${file.path}`}>{name}</a> {date}
+        //         </li>)
+        // }
+        return res
     }
 }
 
@@ -30,7 +43,8 @@ class DirList extends React.Component {
                 }
             } else {
                 if (!this.props.filter || entry.path.indexOf(this.props.filter) > -1) {
-                    return <FileItem openFile={this.props.openFile} key={entry.path} file={entry}/>
+                    return <FileItem openFile={this.props.openFile} key={entry.path} file={entry}
+                                     basePath={this.props.basePath}/>
                 } else {
                     return null
                 }
@@ -54,7 +68,7 @@ class DirList extends React.Component {
 
     render() {
         let dirPath = this.props.dirPath;
-        const files = walkDirSync(dirPath);
+        const files = walkDirSync(dirPath, this.props.exts);
         return this.genList(null, files);
     }
 }
@@ -62,7 +76,7 @@ class DirList extends React.Component {
 class EditPrj extends React.Component {
     render() {
         const basePath = this.props.basePath;
-        if (!this.props.file.path){
+        if (!this.props.file.path) {
             return null;
         }
         const dirPath = path.dirname(this.props.file.path)
@@ -99,29 +113,6 @@ class Info extends React.Component {
         let class_name = ['success', 'warning', 'error']
         return <label className={class_name[level]}>{info.content}</label>
     }
-}
-
-function walkDirSync(dir) {
-    if (!fs.statSync(dir).isDirectory()) {
-        return {}
-    }
-
-    let files = fs.readdirSync(dir);
-    let filelist = [];
-    files.forEach(function (file) {
-        let next = path.join(dir, file);
-        if (fs.statSync(next).isDirectory()) {
-            const tmp = walkDirSync(next);
-            if (tmp.length > 0) {
-                filelist.push({name: file, path: next, files: tmp});
-            }
-        } else {
-            if (path.extname(file) === '.md') {
-                filelist.push({path: next, name: file});
-            }
-        }
-    });
-    return filelist;
 }
 
 
