@@ -14,6 +14,7 @@ const convert = require('../lib/converter')()
 
 
 let appPath = app.getAppPath()
+console.log("appPath:", appPath)
 let buildPath = path.join(appPath, 'build')
 if(!isProd){
     appPath = path.join(__dirname, "../..")

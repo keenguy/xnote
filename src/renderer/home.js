@@ -34,7 +34,7 @@ class HomePage extends React.Component{
     render(){
         return (
             <div id="home">
-                <h2>Root: {this.props.dirPath}</h2>
+                <h2>Workspace: {this.props.dirPath}</h2>
                 <div><input id="home_search" type="text" placeholder="Search.." onKeyUp={this.updateFileList}/>
                 </div>
                 <div className="file-list">

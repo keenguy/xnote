@@ -1,3 +1,5 @@
+const webpack = require('webpack')
+
 const path = require('path')
 const ROOT_PATH = path.resolve(__dirname)
 const BUILD_PATH = path.resolve(ROOT_PATH, 'public')    // development
@@ -28,12 +30,16 @@ const electronConfig = {
     mode: 'development',
     devServer: {
         contentBase: path.join(ROOT_PATH, 'src'),
-        port: 3000
+        port: 3000,
+        hot: true
     },
     node: {
         __dirname: false,
         __filename: false
-    }
+    },
+    plugins:[
+        new webpack.HotModuleReplacementPlugin()
+    ]
 };
 
 const editorRendererConfig = merge(baseConfig,{
@@ -54,7 +60,8 @@ const editorRendererConfig = merge(baseConfig,{
             // both options are optional
             filename: '[name].css',
             chunkFilename: '[id].css',
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ]
 });
 
@@ -76,7 +83,8 @@ const viewerRendererConfig = merge(baseConfig,{
             // both options are optional
             filename: '[name].css',
             chunkFilename: '[id].css',
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ]
 });
 
@@ -98,7 +106,8 @@ const homeRendererConfig = merge(baseConfig,{
             // both options are optional
             filename: '[name].css',
             chunkFilename: '[id].css',
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ]
 });
 

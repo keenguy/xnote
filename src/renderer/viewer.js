@@ -221,7 +221,7 @@ class Header extends React.Component {
                     <Tabs tabList={this.tabList} clickTab={this.clickTab} closeTab={this.closeTab}
                     />
                     <div id="tab-btns">
-                        <i className="material-icons">menu</i>
+                        {/*<i className="material-icons">menu</i>*/}
                         <i id="add-tab-button" className="material-icons"
                            onClick={this.openTab.bind(null, null)}>add</i>
                     </div>
