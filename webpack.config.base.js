@@ -11,12 +11,6 @@ const baseConfig = {
     module: {
         rules: [
             {
-                test: /\.html$/,
-                use: [{
-                    loader: 'html-loader'
-                }]
-            },
-            {
                 test: /\.css$/,
                 use: [
                     {
@@ -33,10 +27,18 @@ const baseConfig = {
             {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
-                use: ["babel-loader"]
+                use: {
+                    loader: "babel-loader",
+                    options:{
+                        presets:['@babel/preset-env', '@babel/preset-react']
+                    }
+                }
 
             },
-            {test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/, loader: "file-loader?name=[name].[ext]"}
+            {
+                test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/,
+                loader: "file-loader?name=[name].[ext]"
+            }
         ]
     },
     mode: 'development',

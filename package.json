@@ -7,12 +7,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "electron src/main/electron.js",
-    "build-dev": "rm -rf public && webpack",
-    "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "serve": "webpack-dev-server",
+    "dev": "cross-env NODE_ENV=development electron src/main/electron.js",
+    "build": "rm -rf build && webpack --config webpack.prod.config.js",
     "start": "cross-env NODE_ENV=production electron ./build/src/main/electron.js",
-    "start-dev": "electron ./public/main/electron.js",
     "test": "electron test/main.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"

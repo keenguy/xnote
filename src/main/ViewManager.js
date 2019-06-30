@@ -1,7 +1,9 @@
 const {BrowserView, ipcMain} = require('electron')
 const path = require('path')
 
-const isDev = require('electron-is-dev')
+const isDev = (process.env.NODE_ENV === 'development')
+
+// require('electron-is-dev')
 let viewMap = {} // id: view
 let viewStateMap = {} // id: view state
 let mainWindow = null

@@ -5,7 +5,8 @@ const getMenu = require('./menu.js')
 const path = require('path')
 const fs = require('fs')
 const fsPromise = require('fs').promises
-const isDev = require("electron-is-dev");
+const isDev = (process.env.NODE_ENV === 'development')
+const isProd = !require("electron-is-dev");
 const Store = require('electron-store');
 
 const {walkDirSync} = require('../utils/dir')
@@ -14,13 +15,16 @@ const convert = require('../lib/converter')()
 
 let appPath = app.getAppPath()
 let buildPath = path.join(appPath, 'build')
-if(isDev){
+if(!isProd){
     appPath = path.join(__dirname, "../..")
     buildPath = appPath
 }
 const convertOpt = {appPath, buildPath}
 
-
+console.log("appPath:", appPath)
+console.log("buildPath:", buildPath)
+console.log("isDev: ", isDev)
+console.log("isProd", isProd)
 
 const schema = {
     basePath: {type: 'string', default: '/Users/yonggu/Coding/xnotes'},
