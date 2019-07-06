@@ -16,7 +16,8 @@ class Program extends React.Component {
                     <span>Compile all updated md files </span>
                 </div>
                 <div>
-                    <i className={`fa fa-forward ${disabled}`} onClick={this.props.exec.bind(null, 'compile', true)}></i>
+                    <i className={`fa fa-forward ${disabled}`}
+                       onClick={this.props.exec.bind(null, 'compile', true)}></i>
                     <span>Compile all md files</span>
                 </div>
                 <div>
@@ -24,7 +25,8 @@ class Program extends React.Component {
                     <span>Remove all html files</span>
                 </div>
                 <div>
-                    <i className={`fa fa-refresh ${disabled}`} onClick={this.props.exec.bind(null, 'refresh', false)}></i>
+                    <i className={`fa fa-refresh ${disabled}`}
+                       onClick={this.props.exec.bind(null, 'refresh', false)}></i>
                     <span>Reload local files </span>
                 </div>
             </div>
@@ -38,6 +40,7 @@ class HomeView extends React.Component {
         this.state = {
             view: 'recent',
             filterText: '',
+            extFilter: '.md',
             running: false
         }
 
@@ -46,6 +49,7 @@ class HomeView extends React.Component {
         this.updateFileList = this.updateFileList.bind(this)
         this.execProgram = this.execProgram.bind(this)
         this.filter = this.filter.bind(this)
+        this.changeExtFilter = this.changeExtFilter.bind(this)
     }
 
     componentDidMount() {
@@ -85,8 +89,11 @@ class HomeView extends React.Component {
         //         break;
         // }
     }
-    filter(file){
-        return path.extname(file) === '.md' && file.indexOf(this.state.filterText) > -1
+    changeExtFilter(e){
+        this.setState({extFilter: e.target.value})
+    }
+    filter(file) {
+        return (!this.state.extFilter || path.extname(file) === this.state.extFilter) && file.indexOf(this.state.filterText) > -1
     }
 
     render() {
@@ -119,10 +126,17 @@ class HomeView extends React.Component {
                          style={{display: this.state.view === 'workspace' ? 'flex' : 'none'}}>
                         <h2>Workspace: {this.props.dirPath}</h2>
                         <div><input id="home_search" type="text" placeholder="Search.." onKeyUp={this.updateFileList}/>
+                            <select value={this.state.filterExt} onChange={this.changeExtFilter}>
+                                <option value='.md'>md</option>
+                                <option value='.yml'>yml</option>
+                                <option value='.html'>html</option>
+                                <option value=''>all</option>
+                            </select>
                         </div>
+
                         <div className="file-list">
                             <DirList openFile={this.props.openFile} dirPath={this.props.dirPath}
-                                     filters = {[this.filter]}/>
+                                     filters={[this.filter]}/>
                         </div>
                     </div>
                     <Program running={this.state.running}

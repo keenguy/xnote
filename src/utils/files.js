@@ -23,10 +23,11 @@ function walkDirSync(dirPath) {
         if (fs.statSync(nextPath).isDirectory()) {
             const tmp = walkDirSync(nextPath);
             res.files[fileName] = tmp;
-        } else if (fileName === "_config.yml") {
-            res.config = yaml.safeLoad(fs.readFileSync(path.join(dirPath, fileName)))
         } else {
             res.files[fileName] = {path: nextPath, name: fileName, parent: res};
+            if (fileName === "_config.yml") {
+                res.config = yaml.safeLoad(fs.readFileSync(path.join(dirPath, fileName)))
+            }
         }
     });
 
@@ -38,15 +39,15 @@ function walkDirSync(dirPath) {
    dir: a dir object
    relPath: path relative to dir.path
  */
-function getSubDir(dir, relPath){
+function getSubDir(dir, relPath) {
     const names = relPath.split(path.sep)
     console.log(names)
     let subDir = dir;
-    if(names.length > 0 && names[0].length > 0 && names[0][0] != '.') {
-        for(const name of names){
-            if(subDir && subDir.files) {
+    if (names.length > 0 && names[0].length > 0 && names[0][0] != '.') {
+        for (const name of names) {
+            if (subDir && subDir.files) {
                 subDir = subDir.files[name]
-            }else{
+            } else {
                 return null
             }
         }
