@@ -2,7 +2,7 @@ import React from 'react'
 
 import {FileItem, DirList} from './shared'
 
-import {walkDirSync} from '../utils/dir'
+import path from 'path'
 
 class Program extends React.Component {
     render() {
@@ -12,16 +12,20 @@ class Program extends React.Component {
                  style={{display: this.props.view === 'program' ? 'flex' : 'none'}}>
                 <h2>Workspace: {this.props.dirPath}</h2>
                 <div>
-                    <i className={`fa fa-play ${disabled}`} onClick={this.props.exec.bind(null,'compile')}></i>
+                    <i className={`fa fa-play ${disabled}`} onClick={this.props.exec.bind(null, 'compile', false)}></i>
                     <span>Compile all updated md files </span>
                 </div>
                 <div>
-                    <i className={`fa fa-forward ${disabled}`} onClick={this.props.exec.bind(null, 'compileAll')}></i>
+                    <i className={`fa fa-forward ${disabled}`} onClick={this.props.exec.bind(null, 'compile', true)}></i>
                     <span>Compile all md files</span>
                 </div>
                 <div>
-                    <i className={`fa fa-trash ${disabled}`} onClick={this.props.exec.bind(null, 'clean')}></i>
+                    <i className={`fa fa-trash ${disabled}`} onClick={this.props.exec.bind(null, 'clean', false)}></i>
                     <span>Remove all html files</span>
+                </div>
+                <div>
+                    <i className={`fa fa-refresh ${disabled}`} onClick={this.props.exec.bind(null, 'refresh', false)}></i>
+                    <span>Reload local files </span>
                 </div>
             </div>
         )
@@ -38,15 +42,14 @@ class HomeView extends React.Component {
         }
 
 
-
         this.changeView = this.changeView.bind(this);
         this.updateFileList = this.updateFileList.bind(this)
         this.execProgram = this.execProgram.bind(this)
+        this.filter = this.filter.bind(this)
     }
 
     componentDidMount() {
         this.searchBar = document.getElementById('home_search')
-        this.files = walkDirSync(this.props.dirPath)
 
     }
 
@@ -64,30 +67,26 @@ class HomeView extends React.Component {
 
 
     /* program */
-    execProgram(task){
-        switch (task) {
-            case 'compile':
-                this.setState({running: true})
-                setTimeout(()=>{
-                    this.props.processDirSync(null, 'render', false)
-                    this.setState({running: false})
-                },0)
-                break;
-            case 'compileAll':
-                this.setState({running: true})
-                setTimeout(()=> {
-                    this.props.processDirSync(null, 'render', true)
-                    this.setState({running: false})
-                },0)
-                break;
-            case 'clean':
-                this.setState({running: true})
-                setTimeout(()=> {
-                    this.props.processDirSync(null, 'clean', false)
-                    this.setState({running: false})
-                },0)
-                break;
-        }
+    execProgram(task, override) {
+        this.setState({running: true})
+        setTimeout(() => {
+            this.props.processDirSync(null, task, override)
+            this.setState({running: false})
+        }, 0)
+        // switch (task) {
+        //     case 'compile':
+        //     case 'refresh':
+        //     case 'clean':
+        //         this.setState({running: true})
+        //         setTimeout(() => {
+        //             this.props.processDirSync(null, task, override)
+        //             this.setState({running: false})
+        //         }, 0)
+        //         break;
+        // }
+    }
+    filter(file){
+        return path.extname(file) === '.md' && file.indexOf(this.state.filterText) > -1
     }
 
     render() {
@@ -123,15 +122,13 @@ class HomeView extends React.Component {
                         </div>
                         <div className="file-list">
                             <DirList openFile={this.props.openFile} dirPath={this.props.dirPath}
-                                     filter={this.state.filterText}
-                                     exts='.md'
-                            />
+                                     filters = {[this.filter]}/>
                         </div>
                     </div>
                     <Program running={this.state.running}
-                    exec = {this.execProgram}
-                    dirPath = {this.props.dirPath}
-                    view = {this.state.view}/>
+                             exec={this.execProgram}
+                             dirPath={this.props.dirPath}
+                             view={this.state.view}/>
                 </div>
             </div>
         );

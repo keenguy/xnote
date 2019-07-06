@@ -27,6 +27,8 @@ class Editor extends React.Component {
         this.store = sharedObject.store;
         // this.infoElm = document.getElementById('info');
         this.sharedState = sharedObject.state
+        // this.docs = sharedObject.getDocs()
+        // this.getDoc = sharedObject.getDoc;
 
         this.state = {
             view: 'edit',
@@ -48,6 +50,8 @@ class Editor extends React.Component {
         dragElement(document.getElementById("separator"), "H");
         this.openFile(this.store.get('curFilePath'))
 
+        this.docs = ipcRenderer.send('getDocs')
+
         ipcRenderer.on('save', () => {
             this.saveFile();
         })
@@ -58,7 +62,8 @@ class Editor extends React.Component {
     }
 
     openFile(p) {
-        // console.log("open file: ", p)
+        console.log("open file: ", p)
+
         if (this.saveFile()) {
             let res = ipcRenderer.sendSync('readFile', {path: p})
             if (res.err) {

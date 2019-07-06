@@ -41,7 +41,7 @@ class EditView extends React.Component {
     }
 
     componentWillUnmount() {
-        this.saveFile();
+        // this.saveFile();
     }
 
     toggleNav(idx){
@@ -73,6 +73,7 @@ class EditView extends React.Component {
             mode: 'markdown',
             placeholder: 'Code goes here...'
         };
+
         return (
             <div id="edit" className="tabview" style={{display: this.props.show ? 'flex' : 'none'}}>
                 <div className="tool-bar bar">
@@ -88,8 +89,9 @@ class EditView extends React.Component {
                         </div>
                         <EditTOC file={this.props.file} jumpTo={this.jumpTo} show={this.state.nav === 0}/>
                         <EditPrj basePath={this.props.basePath}
+                                 file={this.props.file}
                                  openFile={this.props.openFile}
-                                 file={this.props.file} show={this.state.nav === 1}/>
+                                 show={this.state.nav === 1}/>
                         <div id="separator"></div>
                     </div>
 

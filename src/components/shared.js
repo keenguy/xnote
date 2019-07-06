@@ -3,8 +3,7 @@ import React from 'react'
 
 const fs = window.require('fs')
 const path = window.require('path')
-
-const {walkDirSync} = require('../utils/dir')
+const {remote, ipcRenderer} = window.require('electron')
 
 class FileItem extends React.Component {
     render() {
@@ -32,17 +31,23 @@ class FileItem extends React.Component {
 }
 
 class DirList extends React.Component {
-    genList(dirPath, files) {
-        const items = files.map((entry) => {
+    genList(dir, showPath) {
+        if (!dir) {
+            return null
+        }
+        const items = Object.keys(dir.files).map((key) => {
+            const entry = dir.files[key]
             if (entry.files) {
-                const nested = this.genList(entry.path, entry.files);
+                const nested = this.genList(entry, true);
                 if (nested) {
                     return <li key={entry.path}> {nested} </li>;
                 } else {
                     return null;
                 }
             } else {
-                if (!this.props.filter || entry.path.indexOf(this.props.filter) > -1) {
+                if (!this.props.filters || this.props.filters.every((filter) => {
+                    return filter(entry.path)
+                })) {
                     return <FileItem openFile={this.props.openFile} key={entry.path} file={entry}
                                      basePath={this.props.basePath}/>
                 } else {
@@ -54,9 +59,9 @@ class DirList extends React.Component {
             return item
         })) return null;
 
-        let header = null;
-        if (dirPath) {
-            header = <span><i className="fa fa-folder-open"></i> {dirPath}</span>
+        let header = null
+        if (showPath) {
+            header = (<span><i className="fa fa-folder-open"></i> {dir.path}</span>)
         }
         return (
             <>
@@ -67,13 +72,19 @@ class DirList extends React.Component {
     }
 
     render() {
-        let dirPath = this.props.dirPath;
-        const files = walkDirSync(dirPath, this.props.exts);
-        return this.genList(null, files);
+        const docs = ipcRenderer.sendSync('getSubDocs', this.props.dirPath)
+        // console.log('getSubDocs: ', this.props.dirPath)
+        // console.log(docs)
+        return this.genList(docs, false);
     }
 }
 
 class EditPrj extends React.Component {
+
+    filter(file) {
+        return path.extname(file) === '.md'
+    }
+
     render() {
         const basePath = this.props.basePath;
         if (!this.props.file.path) {
@@ -84,7 +95,9 @@ class EditPrj extends React.Component {
         return (
             <div className='toc' style={{display: this.props.show ? 'flex' : 'none'}}>
                 <div>Project:{dir}</div>
-                <DirList openFile={this.props.openFile} dirPath={dirPath}/>
+                <DirList openFile={this.props.openFile} dirPath={dirPath}
+                         filters={[this.filter]}
+                />
             </div>
         );
     }

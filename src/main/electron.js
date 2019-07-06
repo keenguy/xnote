@@ -9,7 +9,7 @@ const isDev = (process.env.NODE_ENV === 'development')
 const isProd = !require("electron-is-dev");
 const Store = require('electron-store');
 
-const {walkDirSync} = require('../utils/dir')
+const {walkDirSync, getSubDir} = require('../utils/files')
 const convert = require('../lib/converter')()
 
 
@@ -36,6 +36,38 @@ const store = new Store({schema});
 let sharedState = {
     needSave: false
 }
+
+function getDocsFun(){
+    let docs = null
+    const getDocs = function(override){
+        if (!override && docs){
+            return docs
+        }else {
+            return docs = walkDirSync(store.get('basePath'))
+        }
+    }
+    return getDocs
+}
+const getDocs = getDocsFun()
+
+ipcMain.on('log', (event,data)=>{
+    console.log('log: ', data)
+})
+ipcMain.on('getDocs', (event)=>{
+    event.returnValue = getDocs()
+})
+
+ipcMain.on('getSubDocs', (event, docPath)=>{
+    console.log('getDoc:', docPath)
+    const basePath = store.get('basePath')
+    const relPath = path.relative(basePath,docPath)
+    // console.log(names)
+    let docs = getSubDir(getDocs(),relPath)
+
+    event.returnValue = docs
+})
+
+
 global.sharedObject = {
     state: sharedState,
     store: store
@@ -152,6 +184,9 @@ app.on('ready', () => {
     Menu.setApplicationMenu(getMenu(menuAction));
 })
 
+
+
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
     // On macOS it is common for applications and their menu bar
@@ -201,26 +236,33 @@ async function showPreview(title, fp) {
 ipcMain.on('processDirSync', (event, data)=>{
     const dirPath = data.dirPath || store.get('basePath')
     console.log(data.task, dirPath)
-    const files = walkDirSync(dirPath)
+    const docs = getDocs()
     switch(data.task){
-        case 'render':
-            compile(files, data.override)
+        case 'compile':
+            compile(docs, data.override)
+            getDocs(true)
             break;
-        case 'genHome':
-            genHome(dirPath, files);
-            break;
+        // case 'genHome':
+        //     genHome(dirPath, docs);
+        //     getDocs(true)
+        //     break;
         case 'clean':
             console.log("begin cleaning")
-            clean(files)
+            clean(docs)
+            getDocs(true)
             break;
+        case 'refresh':
+            getDocs(true)
     }
+
     event.returnValue = true
 })
 
-function clean(files){
-    files.forEach((entry)=>{
+function clean(docs){
+    Object.keys(docs.files).forEach((key)=>{
+        const entry = docs.files[key]
         if(entry.files){
-            clean(entry.files)
+            clean(entry)
         }else if(path.extname(entry.path) === '.html'){
             console.log("removing: ", entry.path)
             fs.unlinkSync(entry.path)
@@ -228,10 +270,11 @@ function clean(files){
     })
 }
 
-function compile(files, override){
-    files.forEach((entry)=>{
+function compile(dir, override){
+    Object.keys(dir.files).forEach((key)=>{
+        const entry = dir.files[key]
         if(entry.files){
-            compile(entry.files,override)
+            compile(entry, override)
         }else if(path.extname(entry.path) === '.md'){
             const mdPath = entry.path
             const htmlPath = mdPath.substr(0, mdPath.length - 3) + '.html'

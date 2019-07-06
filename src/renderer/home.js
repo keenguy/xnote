@@ -16,6 +16,7 @@ class HomePage extends React.Component{
         this.dirPath = sharedObject.store.get('basePath')
         this.updateFileList = this.updateFileList.bind(this)
         this.openFile = this.openFile.bind(this)
+        this.filter = this.filter.bind(this)
     }
     componentDidMount() {
         this.searchBar = document.getElementById('home_search')
@@ -31,6 +32,10 @@ class HomePage extends React.Component{
         ipcRenderer.send('openHtml', {path:filePath})
     }
 
+    filter(file){
+        const ext = path.extname(file)
+        return (ext === '.html' || ext === '.htm') && file.indexOf(this.state.filterText) > -1
+    }
     render(){
         return (
             <div id="home">
@@ -40,8 +45,7 @@ class HomePage extends React.Component{
                 <div className="file-list">
                     <DirList dirPath={this.dirPath}
                              openFile={this.openFile}
-                             filter={this.state.filterText}
-                             exts='.html'
+                             filters = {[this.filter]}
                              basePath={path.join(__dirname,'../pages/home.html')}
                     />
                 </div>
