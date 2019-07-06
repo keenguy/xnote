@@ -67,7 +67,7 @@ class Editor extends React.Component {
         if (this.saveFile()) {
             let res = ipcRenderer.sendSync('readFile', {path: p})
             if (res.err) {
-                alert('open File error')
+                alert('open File error: '+ p)
             } else {
                 let file = {path: p, content: res.content, needSave: false}
                 let recentFiles = this.state.recentFiles;

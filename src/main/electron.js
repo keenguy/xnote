@@ -63,7 +63,9 @@ ipcMain.on('getSubDocs', (event, docPath)=>{
     const relPath = path.relative(basePath,docPath)
     // console.log(names)
     let docs = getSubDir(getDocs(),relPath)
-
+    // if(relPath === 'javascript'){
+    //     console.log(docs)
+    // }
     event.returnValue = docs
 })
 

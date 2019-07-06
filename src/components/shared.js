@@ -31,6 +31,22 @@ class FileItem extends React.Component {
 }
 
 class DirList extends React.Component {
+    genList2(obj) {
+        const items = Object.keys(obj).map((name) => {
+            if (typeof obj[name] === 'object') {
+                return (<li>{this.genList2(obj[name])}</li>)
+            } else {
+                const file = {
+                    name: name,
+                    path: path.join(this.props.dirPath, obj[name])
+                }
+                return (<FileItem key={obj[name]} openFile={this.props.openFile} file={file}/>)
+            }}
+        )
+        return (
+            <ul>{items}</ul>
+        )
+    }
     genList(dir, showPath) {
         if (!dir) {
             return null
@@ -74,8 +90,12 @@ class DirList extends React.Component {
     render() {
         const docs = ipcRenderer.sendSync('getSubDocs', this.props.dirPath)
         // console.log('getSubDocs: ', this.props.dirPath)
-        // console.log(docs)
-        return this.genList(docs, false);
+        if (this.props.nav && docs.config && docs.config.nav){
+
+            return this.genList2(docs.config.nav)
+        }else {
+            return this.genList(docs, false);
+        }
     }
 }
 
@@ -97,6 +117,7 @@ class EditPrj extends React.Component {
                 <div>Project:{dir}</div>
                 <DirList openFile={this.props.openFile} dirPath={dirPath}
                          filters={[this.filter]}
+                         nav='y'
                 />
             </div>
         );
