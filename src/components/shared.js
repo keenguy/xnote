@@ -32,9 +32,9 @@ class FileItem extends React.Component {
 
 class DirList extends React.Component {
     genList2(obj) {
-        const items = Object.keys(obj).map((name) => {
+        const items = Object.keys(obj).map((name, idx) => {
             if (typeof obj[name] === 'object') {
-                return (<li>{this.genList2(obj[name])}</li>)
+                return (<li key={name+idx}>{this.genList2(obj[name])}</li>)
             } else {
                 const file = {
                     name: name,

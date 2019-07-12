@@ -6,7 +6,7 @@ import TabList from './js/TabList'
 
 import './js/initPreview.js'
 
-const {ipcRenderer, webContents} = window.require('electron')
+const {ipcRenderer, webContents, remote} = window.require('electron')
 
 class Tabs extends React.Component {
 
@@ -190,7 +190,7 @@ class Header extends React.Component {
             this.tabList.destroy(id)
         }
         if (this.tabList.count() <= 0) {
-            ipcRenderer.send('closeWindow')
+            remote.getCurrentWindow().close()
         }
         this.update()
     }

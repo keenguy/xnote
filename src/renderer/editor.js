@@ -53,9 +53,9 @@ class Editor extends React.Component {
 
         this.docs = ipcRenderer.send('getDocs')
 
-        ipcRenderer.on('save', () => {
-            this.saveFile();
-        })
+        // ipcRenderer.on('save', () => {
+        //     this.saveFile();
+        // })
 
         window.onbeforeunload = (e) => {
             this.saveFile()
@@ -101,6 +101,7 @@ class Editor extends React.Component {
         // let res = {err: false};
         // let res = ipcRenderer.sendSync('writeFile', {path: file.path, content: content})
         try {
+            console.log("saving file:",file.path)
             fs.writeFileSync(file.path,file.content,{encoding:'utf8'})
             this.showInfo({content: 'file saved ^_^'}, 1200)
             file.needSave = false;

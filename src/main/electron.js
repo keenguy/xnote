@@ -309,10 +309,6 @@ ipcMain.on("newTab", (event, id)=>{
     vm.loadToLoad(id, home)
 })
 
-ipcMain.on('closeWindow', (event)=>{
-    const win = BrowserWindow.fromWebContents(event.sender)
-    win.close()
-})
 
 ipcMain.on('callView', (event, data)=>{
     let wc = null
@@ -324,18 +320,6 @@ ipcMain.on('callView', (event, data)=>{
         return
     }
 })
-
-// ipcMain.on("goBackOrForward", (event, data) => {
-//     if (viewerWindow) {
-//         if (data.back) {
-//             vm.getView(data.viewId).webContents.goBack();
-//         } else {
-//             vm.getView(data.viewId).webContents.goForward();
-//         }
-//     }
-// })
-
-
 
 // dom events
 ipcMain.on('domWindowResize',(event, data)=>{
