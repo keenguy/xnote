@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import fs from 'fs'
 
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/addon/display/placeholder.js'
@@ -65,17 +66,19 @@ class Editor extends React.Component {
         console.log("open file: ", p)
 
         if (this.saveFile()) {
-            let res = ipcRenderer.sendSync('readFile', {path: p})
-            if (res.err) {
-                alert('open File error: '+ p)
-            } else {
-                let file = {path: p, content: res.content, needSave: false}
+            // let res = ipcRenderer.sendSync('readFile', {path: p})
+            try {
+                const content = fs.readFileSync(p, {encoding: 'utf8'})
+
+                let file = {path: p, content: content, needSave: false}
                 let recentFiles = this.state.recentFiles;
                 this.addRecentFiles(recentFiles, p);
                 this.setState({file: file, recentFiles: recentFiles, view: 'edit'})
                 this.store.set('curFilePath', p);
                 this.store.set('recentFiles', recentFiles);
                 document.title = p;
+            } catch (e) {
+                alert('open File error: ' + p)
             }
         }
     }
@@ -95,17 +98,16 @@ class Editor extends React.Component {
     saveFile() {
         const file = this.state.file;
         if (!file.needSave) return true;
-        const content = file.content;
         // let res = {err: false};
-        let res = ipcRenderer.sendSync('writeFile', {path: file.path, content: content})
-        if (res.err) {
-            alert('save file error')
-            return false;
-        } else {
+        // let res = ipcRenderer.sendSync('writeFile', {path: file.path, content: content})
+        try {
+            fs.writeFileSync(file.path,file.content,{encoding:'utf8'})
             this.showInfo({content: 'file saved ^_^'}, 1200)
             file.needSave = false;
             this.sharedState.needSave = false;
             this.setState({file: file})
+        } catch (e) {
+            alert('save file error')
         }
         return true;
     }
@@ -141,8 +143,8 @@ class Editor extends React.Component {
         this.setState({sidebar: next})
     }
 
-    processDirSync(dirPath, task, override){
-        return ipcRenderer.sendSync('processDirSync', {dirPath:dirPath, task:task, override: override})
+    processDirSync(dirPath, task, override) {
+        return ipcRenderer.sendSync('processDirSync', {dirPath: dirPath, task: task, override: override})
     }
 
     render() {
@@ -154,7 +156,8 @@ class Editor extends React.Component {
                 </div>
 
                 <div id="main">
-                    <HomeView openFile={this.openFile} dirPath={this.store.get('basePath')} show={this.state.view === 'home'}
+                    <HomeView openFile={this.openFile} dirPath={this.store.get('basePath')}
+                              show={this.state.view === 'home'}
                               recentFiles={this.state.recentFiles}
                               processDirSync={this.processDirSync}
                     />
@@ -230,6 +233,5 @@ function dragElement(element, direction) {
 }
 
 
-
 const editor = document.getElementById('root')
-ReactDOM.render(<Editor />, editor)
+ReactDOM.render(<Editor/>, editor)

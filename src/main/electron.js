@@ -304,25 +304,6 @@ ipcMain.on('sync', (event, data) => {
     }
 })
 
-//synchronous
-ipcMain.on('readFile', (event,data)=>{
-    try{
-        let content = fs.readFileSync(data.path, {encoding: 'utf8'})
-        event.returnValue = {content: content}
-    }catch{
-        event.returnValue = {err: true}
-    }
-})
-
-ipcMain.on('writeFile', (event, data) => {
-    try{
-        fs.writeFileSync(data.path, data.content, {encoding: 'utf8'})
-        event.returnValue = {err: false}
-    }catch{
-        event.returnValue = {err: true}
-    }
-})
-
 // viewerWindow.webContents events: newTab, closeWindow, callView
 ipcMain.on("newTab", (event, id)=>{
     vm.loadToLoad(id, home)
