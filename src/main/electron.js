@@ -58,7 +58,6 @@ ipcMain.on('getDocs', (event)=>{
 })
 
 ipcMain.on('getSubDocs', (event, docPath)=>{
-    console.log('getDoc:', docPath)
     const basePath = store.get('basePath')
     const relPath = path.relative(basePath,docPath)
     // console.log(names)
@@ -163,31 +162,33 @@ app.on('ready', () => {
     createEditorWindow()
 
     function menuAction(cmd, opt) {
-        if (cmd === 'toViewer' && viewerWindow) {
-            viewerWindow.show();
-        } else if (cmd === 'toEditor' && editorWindow) {
-            editorWindow.show();
-        } else if (cmd === 'closeTab') {
-            if (viewerWindow && viewerWindow.isFocused()) {
-                // console.log("close Tab in preview window")
-                viewerWindow.webContents.send('closeTab')
-            }
-        }
-        else if (cmd === 'callEditor' && editorWindow) {
-            editorWindow.webContents.send(opt.msg, opt.data);
-        }
-        else if (cmd === 'callViewer' && viewerWindow) {
-            viewerWindow.webContents.send(opt.msg, opt.data);
-        } else if (cmd === 'findInPreview' && viewerWindow && viewerWindow.isFocused){
-            viewerWindow.webContents.send('find')
+        switch(cmd){
+            case 'toViewer':
+                viewerWindow && viewerWindow.show()
+                break
+            case 'toEditor':
+                editorWindow && editorWindow.show()
+                break
+            case 'closeTab':
+                viewerWindow && viewerWindow.isFocused() && viewerWindow.webContents.send('closeTab')
+                break
+            case 'callEditor':
+                editorWindow && editorWindow.webContents.send(opt.msg, opt.data)
+                break;
+            case 'callViewer':
+                viewerWindow && viewerWindow.webContents.send(opt.msg, opt.data)
+                break
+            case 'inspect':
+                viewerWindow && viewerWindow.isFocused() && vm.getView(null).webContents.toggleDevTools()
+                break
+            case 'findInPreview':
+                viewerWindow && viewerWindow.isFocused() && vm.sendToView(null, 'find')
+                break
         }
     }
 
     Menu.setApplicationMenu(getMenu(menuAction));
 })
-
-
-
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

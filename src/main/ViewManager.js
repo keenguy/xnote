@@ -8,6 +8,7 @@ let viewMap = {} // id: view
 let viewStateMap = {} // id: view state
 let mainWindow = null
 let toLoad = null
+let curId = -1
 
 
 let bounds = {x: 0, y: 90, height: 790, width: 1400};
@@ -99,8 +100,14 @@ function setView(id) {
         }
         mainWindow.setBrowserView(viewMap[id])
     }
-
+    curId = id;
 }
+
+function sendToView(id, data){
+    id = id || curId
+    viewMap[id] && viewMap[id].webContents.send(data)
+}
+
 
 function setBounds(bs) {
     bounds = bs;
@@ -123,6 +130,7 @@ function hideCurrentView() {
 }
 
 function getView(id) {
+    id = id || curId
     return viewMap[id]
 }
 
@@ -153,8 +161,6 @@ function loadToLoad(id, home){
         this.loadURLInView(id, home)
     }
 }
-
-
 
 ipcMain.on('createView', function (e, args) {
     createView(args.id, args.webPreferencesString, args.boundsString, args.events)
@@ -222,6 +228,7 @@ const vm = {
     setWindow,
     clearWindow,
     setBounds,
-    loadToLoad
+    loadToLoad,
+    sendToView
 }
 module.exports = vm

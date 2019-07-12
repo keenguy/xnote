@@ -1,5 +1,10 @@
 const {ipcRenderer} = require('electron')
 
+// const {FindInPage} =  window.require('electron-find')
+
+
+
+
 ipcRenderer.on('sync', (event, line) => {
     // console.log('sync: ', line)
     const res = document.querySelectorAll('[data-source-line]');
@@ -21,3 +26,8 @@ function syncToEdit(event, line) {
         ipcRenderer.send('sync', {toWin: 0, line: line})
     }
 }
+
+// ipcRenderer.on('find', ()=>{
+//     let findInPage = new FindInPage(remote.getCurrentWebContents())
+//     findInPage.openFindWindow()
+// })

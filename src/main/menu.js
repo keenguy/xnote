@@ -77,7 +77,16 @@ function getMenu(menuAction) {
             submenu: [
                 {role: 'reload'},
                 {role: 'forcereload'},
-                {role: 'toggledevtools'},
+                {
+                    label: 'Inspect window',
+                    role: 'toggledevtools'
+                },
+                {
+                  label: 'Inspect Page',
+                  click: ()=>{
+                      menuAction('inspect')
+                  }
+                },
                 {type: 'separator'},
                 {role: 'resetzoom'},
                 {role: 'zoomin'},
