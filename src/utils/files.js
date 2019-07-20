@@ -10,7 +10,7 @@ const yaml = require('js-yaml')
        config:
    }
  */
-function walkDirSync(dirPath) {
+function walkDirSync(dirPath, projectDir) {
     let res = {}
     if (!fs.statSync(dirPath).isDirectory()) {
         return res
@@ -18,16 +18,23 @@ function walkDirSync(dirPath) {
     res.path = dirPath
     res.name = path.basename(dirPath)
     res.files = {}
+
+    // try to load _config.yml (note that projects may nest)
+    try {
+        const config = yaml.safeLoad(fs.readFileSync(path.join(dirPath, '_config.yml'), 'utf8'))
+        res.config = config
+        res.projectDir = dirPath
+    } catch (e) {
+        res.projectDir = projectDir
+    }
+
     fs.readdirSync(dirPath).forEach(function (fileName) {
         const nextPath = path.join(dirPath, fileName);
         if (fs.statSync(nextPath).isDirectory()) {
-            const tmp = walkDirSync(nextPath);
+            const tmp = walkDirSync(nextPath, res.projectDir);
             res.files[fileName] = tmp;
         } else {
-            res.files[fileName] = {path: nextPath, name: fileName, parent: res};
-            if (fileName === "_config.yml") {
-                res.config = yaml.safeLoad(fs.readFileSync(path.join(dirPath, fileName)))
-            }
+            res.files[fileName] = {path: nextPath, name: fileName, parent: res, projectDir: res.projectDir};
         }
     });
 
@@ -41,7 +48,6 @@ function walkDirSync(dirPath) {
  */
 function getSubDir(dir, relPath) {
     const names = relPath.split(path.sep)
-    console.log(names)
     let subDir = dir;
     if (names.length > 0 && names[0].length > 0 && names[0][0] != '.') {
         for (const name of names) {

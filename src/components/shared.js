@@ -33,20 +33,22 @@ class FileItem extends React.Component {
 class DirList extends React.Component {
     genList2(obj) {
         const items = Object.keys(obj).map((name, idx) => {
-            if (typeof obj[name] === 'object') {
-                return (<li key={name+idx}>{this.genList2(obj[name])}</li>)
-            } else {
-                const file = {
-                    name: name,
-                    path: path.join(this.props.dirPath, obj[name])
+                if (typeof obj[name] === 'object') {
+                    return (<li key={name + idx}>{this.genList2(obj[name])}</li>)
+                } else {
+                    const file = {
+                        name: name,
+                        path: path.join(this.props.dirPath, obj[name])
+                    }
+                    return (<FileItem key={obj[name]} openFile={this.props.openFile} file={file}/>)
                 }
-                return (<FileItem key={obj[name]} openFile={this.props.openFile} file={file}/>)
-            }}
+            }
         )
         return (
             <ul>{items}</ul>
         )
     }
+
     genList(dir, showPath) {
         if (!dir) {
             return null
@@ -89,11 +91,9 @@ class DirList extends React.Component {
 
     render() {
         const docs = ipcRenderer.sendSync('getSubDocs', this.props.dirPath)
-        // console.log('getSubDocs: ', this.props.dirPath)
-        if (this.props.nav && docs.config && docs.config.nav){
-
+        if (this.props.nav && docs.config && docs.config.nav) {
             return this.genList2(docs.config.nav)
-        }else {
+        } else {
             return this.genList(docs, false);
         }
     }
@@ -110,7 +110,13 @@ class EditPrj extends React.Component {
         if (!this.props.file.path) {
             return null;
         }
-        const dirPath = path.dirname(this.props.file.path)
+        let dirPath
+        const doc = ipcRenderer.sendSync('getSubDocs', this.props.file.path)
+        if (doc.projectDir) {
+            dirPath = doc.projectDir
+        } else {
+            dirPath = path.dirname(this.props.file.path)
+        }
         const dir = path.relative(basePath, dirPath)
         return (
             <div className='toc' style={{display: this.props.show ? 'flex' : 'none'}}>

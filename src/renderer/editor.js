@@ -53,10 +53,6 @@ class Editor extends React.Component {
 
         this.docs = ipcRenderer.send('getDocs')
 
-        // ipcRenderer.on('save', () => {
-        //     this.saveFile();
-        // })
-
         window.onbeforeunload = (e) => {
             this.saveFile()
         }

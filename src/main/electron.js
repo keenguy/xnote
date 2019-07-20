@@ -9,7 +9,7 @@ const isDev = (process.env.NODE_ENV === 'development')
 const isProd = !require("electron-is-dev");
 const Store = require('electron-store');
 
-const {walkDirSync, getSubDir} = require('../utils/files')
+const {getDocsFun, getSubDir} = require('./docs')
 const convert = require('../lib/converter')()
 
 
@@ -36,19 +36,7 @@ const store = new Store({schema});
 let sharedState = {
     needSave: false
 }
-
-function getDocsFun(){
-    let docs = null
-    const getDocs = function(override){
-        if (!override && docs){
-            return docs
-        }else {
-            return docs = walkDirSync(store.get('basePath'))
-        }
-    }
-    return getDocs
-}
-const getDocs = getDocsFun()
+const getDocs = getDocsFun(store.get('basePath'))
 
 ipcMain.on('log', (event,data)=>{
     console.log('log: ', data)
@@ -58,14 +46,14 @@ ipcMain.on('getDocs', (event)=>{
 })
 
 ipcMain.on('getSubDocs', (event, docPath)=>{
-    const basePath = store.get('basePath')
-    const relPath = path.relative(basePath,docPath)
-    // console.log(names)
-    let docs = getSubDir(getDocs(),relPath)
-    // if(relPath === 'javascript'){
-    //     console.log(docs)
-    // }
-    event.returnValue = docs
+    try {
+        const basePath = store.get('basePath')
+        const relPath = path.relative(basePath, docPath)
+        let docs = getSubDir(getDocs(), relPath)
+        event.returnValue = docs
+    }catch(e){
+        event.returnValue = null
+    }
 })
 
 

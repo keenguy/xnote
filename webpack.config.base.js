@@ -1,7 +1,7 @@
 const path = require('path')
 
 const ROOT_PATH = path.resolve(__dirname)
-const BUILD_PATH = path.resolve(ROOT_PATH, 'public')    // development
+// const BUILD_PATH = path.resolve(ROOT_PATH, 'public')    // development
 
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
