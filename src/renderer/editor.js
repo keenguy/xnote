@@ -48,7 +48,6 @@ class Editor extends React.Component {
     }
 
     componentDidMount() {
-        dragElement(document.getElementById("separator"), "H");
         this.openFile(this.store.get('curFilePath'))
 
         this.docs = ipcRenderer.send('getDocs')
@@ -182,52 +181,7 @@ class Editor extends React.Component {
 
 }
 
-/* helpers */
 
-
-// function is used for dragging and moving
-function dragElement(element, direction) {
-    let md; // remember mouse down info
-    const first = document.getElementById("edit-left");
-    const second = document.getElementById("editor");
-
-    element.onmousedown = onMouseDown;
-
-    function onMouseDown(e) {
-        //console.log("mouse down: " + e.clientX);
-        md = {
-            e,
-            offsetLeft: element.offsetLeft,
-            offsetTop: element.offsetTop,
-            firstWidth: first.offsetWidth,
-            secondWidth: second.offsetWidth
-        };
-        document.onmousemove = onMouseMove;
-        document.onmouseup = () => {
-            //console.log("mouse up");
-            document.onmousemove = document.onmouseup = null;
-        }
-    }
-
-    function onMouseMove(e) {
-        //console.log("mouse move: " + e.clientX);
-        var delta = {
-            x: e.clientX - md.e.x,
-            y: e.clientY - md.e.y
-        };
-
-        if (direction === "H") // Horizontal
-        {
-            // prevent negative-sized elements
-            delta.x = Math.min(Math.max(delta.x, -md.firstWidth),
-                md.secondWidth);
-
-            element.style.left = md.offsetLeft + delta.x + "px";
-            first.style.width = (md.firstWidth + delta.x) + "px";
-            second.style.width = (md.secondWidth - delta.x) + "px";
-        }
-    }
-}
 
 
 const editor = document.getElementById('root')

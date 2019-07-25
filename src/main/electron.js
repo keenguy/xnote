@@ -1,4 +1,4 @@
-const {app, BrowserWindow, viewView, ipcMain, Menu} = require('electron')
+const {app, BrowserWindow, ipcMain, Menu} = require('electron')
 
 const getMenu = require('./menu.js')
 // const url = require('url')
