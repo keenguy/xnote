@@ -27,6 +27,7 @@ code {
   letter-spacing: 0.025em;
   line-height: 1.25;
   height: 100%;
+  font-size: medium;
   /*overflow-y: hidden !important;*/
 }
 
