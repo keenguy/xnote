@@ -63,7 +63,7 @@
     "electron-find": "^1.0.6",
     "electron-is-dev": "^1.1.0",
     "electron-store": "^4.0.0",
-    "handlebars": "^4.1.2",
+    "handlebars": "^4.3.0",
     "highlight.js": "^9.15.8",
     "js-yaml": "^3.13.1",
     "markdown-it": "^8.4.2",
